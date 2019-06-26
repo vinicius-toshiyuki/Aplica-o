@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox as TkMessageBox
+from PIL import Image
 from app import App
 
 class LogInScreen(App):
@@ -57,10 +58,15 @@ class LogInScreen(App):
 			TkMessageBox.showinfo('Error', 'Invalid username or password')
 		else:
 			print('-- READ --\nUsername: ', username + '\nPassword: ', password)
-			# self.screen = ['autenticate', username, password]
-			self.screen.clear()
-			self.screen += ['autenticate', username, password]
-			self.stop()
+			self.db.select('nome, senha, lo_export(foto, \'/tmp/profilepic\')', 'ALUNO', where='nome = \''+username+'\'')
+			userInfo = self.db.fetchone()
+			# lo_export(foto, \'/tmp/pim.jpg\')
+			if userInfo and userInfo[0] == username and userInfo[1] == password:
+				self.screen.clear()
+				self.screen += ['autenticate', username, password]
+				self.stop()
+			else:
+				TkMessageBox.showinfo('Error', 'Invalid username or password')
 	def register(self, event=None):
 		username = self.usernameInput.get()
 		password = self.passwordInput.get()

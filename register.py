@@ -44,7 +44,7 @@ class RegisterScreen(LogInScreen):
 		self.confirmPassInput.pack(side=RIGHT)
 
 		# Cria campo para pôr imagem de perfil
-		self.profilePicLabel = Label(self.profilePicFrame, text='Fotinha do zapkk: ')
+		self.profilePicLabel = Label(self.profilePicFrame, text='Foto de perfil: ')
 		self.profilePicLabel.pack(side=LEFT)
 		self.profilePicButton = Button(self.profilePicFrame, text='Procurar...', command=self.browse_profile_pic)
 		self.profilePicButton.pack(side=RIGHT)
@@ -59,7 +59,7 @@ class RegisterScreen(LogInScreen):
 		self.registerNumberInput.pack(side=RIGHT)
 
 		# Cria campo para data de nascimento birthdate
-		self.birthdateLabel = Label(self.birthdateFrame, text='Birthdate (dd/mm/yyyy): ')
+		self.birthdateLabel = Label(self.birthdateFrame, text='Birthdate (ddmm-yyyy): ')
 		self.birthdateLabel.pack(side=LEFT)
 		self.birthdateInput = Entry(self.birthdateFrame)
 		self.birthdateInput.pack(side=RIGHT)

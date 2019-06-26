@@ -32,7 +32,7 @@ class HomeScreen(App):
 
 		# Foto de perfil
 		# TODO: Tem que ser a foto de perfil ne
-		imraw = Image.open(self.icon)
+		imraw = Image.open('/tmp/profilepic')
 		imraw = imraw.resize((50,50), Image.NEAREST)
 		imraw.save('.temp.png')
 

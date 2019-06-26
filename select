@@ -1,0 +1,1 @@
+'select '+v+' from '+t+(' where '+w if len(w) else '') +' ;'

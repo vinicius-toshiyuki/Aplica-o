@@ -6,6 +6,7 @@ sudo -u postgres psql
 root
 root
 create database corretor;
-create table tabela (nome varchar(200), idade integer);
+\c corretor
+\i create.sql
 \q
 python3 front.py

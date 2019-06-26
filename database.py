@@ -23,6 +23,18 @@ class BD:
 			self.__cursor.execute('insert into ' + table + columns + ' values (' + ''.join(list(''.join([(lambda i: '{}, ')(i) for i in range(len(values))]))[:-2]).format(*values) + ');')
 		else:
 			print('Erro no insert')
+
+	def select(self, values, table, where=''):
+		if self.__connection:
+			self.__cursor.execute('select '+values+' from '+table+(' where '+where if len(where) else '') +' ;')
+		else:
+			print('Erro no select')
+	
+	def fetchone(self):
+		return self.__cursor.fetchone()
+
+	def fetchall(self):
+		return self.__cursor.fetchall()
 	
 	def commit(self):
 		if self.__connection:
