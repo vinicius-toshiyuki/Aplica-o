@@ -105,6 +105,7 @@ class RegisterScreen(LogInScreen):
 		elif not len(registern) or not len(birthdate) or not len(classe):
 			TkMessageBox.showinfo('Erro', 'Jouhou ga tarinai')
 		else:
+			# TODO: fazer uma função pra abstrari mais esses insert e tudo
 			# TODO: colocar a data de cadastro e semestre numa função no sql
 			importPic = list('lo_import(\''+self.profilePicPath+'\')')
 			self.db.insert('ALUNO', (registern, username, password, importPic, birthdate, ord(classe.upper())), columns='(matricula, nome, senha, foto, data_nasc, turma_cod)')
