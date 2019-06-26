@@ -15,6 +15,7 @@ class App:
 		self.icon = icon
 		self.geometry = geometry
 
+		self.window.resizable(0, 0)
 		# Cria handler para retornos
 		# TODO: tem que tratar pra autenticar mesmo e tal
 		self.handler = {}
@@ -30,7 +31,7 @@ class App:
 	def thread_start(self):
 		while self.on:
 			print(self.screen)
-			self.handler[self.screen[0]](*self.screen[1:], title=self.title, icon=self.icon, geometry=self.geometry).start()
+			self.handler[self.screen[0]](*self.screen[1:], title=self.title, icon=self.icon).start()
 			self.end.acquire()
 			self.end.wait()
 			self.end.release()

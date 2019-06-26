@@ -4,7 +4,7 @@ from PIL import Image
 from app import App
 
 class HomeScreen(App):
-	def __init__(self, username, password, title='', icon=None, geometry='400x250'):
+	def __init__(self, username, password, title='', icon=None, geometry='500x250'):
 		self.username = username
 		self.password = password
 		self.title = title
@@ -27,6 +27,8 @@ class HomeScreen(App):
 		self.topbar.pack(anchor=W)
 		self.menu = Frame(self.homeScreenFrame)
 		self.menu.pack()
+		self.menuAdmin = Frame(self.homeScreenFrame)
+		self.menuAdmin.pack()
 
 		# Foto de perfil
 		# TODO: Tem que ser a foto de perfil ne
@@ -51,12 +53,20 @@ class HomeScreen(App):
 
 		# Botões do menu
 		self.menuButtons = [
+			Button(self.menu, text='Contests'), 
 			Button(self.menu, text='Problems'), 
 			Button(self.menu, text='Attempts'),
-			Button(self.menu, text='Users'), 
+			Button(self.menu, text='Users'),
 			Button(self.menu, text='Change password')
 		]
-		for b in self.menuButtons: b.pack()
+		self.menuAdminButtons = [
+			Button(self.menuAdmin, text='Admin quick'),
+			Button(self.menuAdmin, text='Admin'),
+			Button(self.menuAdmin, text='Cadastrar'),
+			Button(self.menuAdmin, text='Controle de users')
+		]
+		for b in self.menuButtons: b.pack(side=LEFT)
+		for b in self.menuAdminButtons: b.pack(side=LEFT)
 	def logout(self):
 		self.screen.clear()
 		self.screen += ['logout']
