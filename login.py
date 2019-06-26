@@ -46,6 +46,8 @@ class LogInScreen(App):
 		# Cria botões para autenticar e registrar
 		self.loginButton    = Button(self.buttonFrame, text='Autenticate', command=self.autenticate)
 		self.registerButton = Button(self.buttonFrame, text='Register', relief=FLAT, command=self.register)
+		self.loginButton.bind('<Return>', self.autenticate)
+		self.registerButton.bind('<Return>', self.register)
 		self.loginButton.pack()
 		self.registerButton.pack()
 	def autenticate(self, event=None):
@@ -59,7 +61,7 @@ class LogInScreen(App):
 			self.screen.clear()
 			self.screen += ['autenticate', username, password]
 			self.stop()
-	def register(self):
+	def register(self, event=None):
 		username = self.usernameInput.get()
 		password = self.passwordInput.get()
 		if not len(username) or not len(password):

@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox as TkMessageBox
 import threading
 from threading import Thread
+from database import BD
 
 class App:
 	window = Tk()
@@ -9,11 +10,14 @@ class App:
 	lock = threading.Lock()
 	end = threading.Condition(lock)
 	on = True
+	db = BD()
 
 	def __init__(self, title='', icon=None, geometry='400x250'):
 		self.title = title
 		self.icon = icon
 		self.geometry = geometry
+
+		self.db.connect()
 
 		self.window.resizable(0, 0)
 		# Cria handler para retornos

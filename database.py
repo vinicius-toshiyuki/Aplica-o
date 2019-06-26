@@ -15,7 +15,7 @@ class BD:
 		except (Exception, psycopg2.Error) as error:
 			print('Erro ao conectar')
 		finally:
-			return self.__connection if self.__connection else None
+			return True if self.__connection else False
 
 	def insert(self, table, values, columns=''):
 		if self.__connection:
@@ -38,11 +38,11 @@ class BD:
 			)
 		else:
 			print('Erro no init')
-
+'''
 from PIL import Image
 import base64
 from io import BytesIO
-p = '/home/vinicius/Downloads/jpegs/photo.jpg'
+p = '/home/vinicius/Downloads/samsung galaxy s10 wallpaper 5.png'
 bd = BD()
 bd.connect()
 bd.init()
@@ -53,3 +53,4 @@ bd.commit()
 bd.cursor.execute('select lo_export(foto, \'/tmp/pim.jpg\') from usuarios;')
 im = Image.open('/tmp/pim.jpg')
 im.show()
+'''
