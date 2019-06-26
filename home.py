@@ -1,8 +1,9 @@
 from tkinter import *
 from tkinter import messagebox as TkMessageBox
 from PIL import Image
+from app import App
 
-class HomeScreen:
+class HomeScreen(App):
 	def __init__(self, username, password, title='', icon=None, geometry='400x250'):
 		self.username = username
 		self.password = password
@@ -10,19 +11,22 @@ class HomeScreen:
 		self.icon = icon
 		self.geometry = geometry
 
-		# Cria janela
-		self.window = Tk()
 		self.window.title(self.title)
 		# Configura ícone da janela
 		if self.icon != None:
-			windowicon = PhotoImage(file=self.icon)
-			self.window.tk.call('wm', 'iconphoto', self.window._w, windowicon)
+			self.windowicon = PhotoImage(file=self.icon)
+			self.window.tk.call('wm', 'iconphoto', self.window._w, self.windowicon)
 		# Configura tamanho da janela (largura x altura)
 		self.window.geometry(self.geometry)
 
+		# Cria frame da home self.screen
+		self.homeScreenFrame = Frame(self.window)
+
 		# Frames
-		self.topbar = Frame(self.window)
+		self.topbar = Frame(self.homeScreenFrame)
 		self.topbar.pack(anchor=W)
+		self.menu = Frame(self.homeScreenFrame)
+		self.menu.pack()
 
 		# Foto de perfil
 		# TODO: Tem que ser a foto de perfil ne
@@ -42,21 +46,28 @@ class HomeScreen:
 		self.name.pack(side=LEFT, padx=5)
 
 		# Sair
-		self.logoutButton = Button(self.topbar, text='Desconectar', command=self.logout)
+		self.logoutButton = Button(self.topbar, text='Log out', command=self.logout)
 		self.logoutButton.pack(side=LEFT, padx=5)
 
-		# Configura o retorna
-		self.ret = ''
+		# Botões do menu
+		self.menuButtons = [
+			Button(self.menu, text='Problems'), 
+			Button(self.menu, text='Attempts'),
+			Button(self.menu, text='Users'), 
+			Button(self.menu, text='Change password')
+		]
+		for b in self.menuButtons: b.pack()
 	def logout(self):
-		self.ret = ['logout']
-		self.window.destroy()
-		self.window = None
+		self.screen.clear()
+		self.screen += ['logout']
+		self.stop()
+
+	def stop(self):
+		self.homeScreenFrame.pack_forget()
+		self.end.acquire()
+		self.end.notify()
+		self.end.release()
 
 	def start(self):
 		# Renderiza a janela
-		if self.window == None:
-			self.__init__(self.username, self.password, self.title, self.icon, self.geometry)
-		self.window.mainloop()
-		return self.ret
-
-
+		self.homeScreenFrame.pack()
