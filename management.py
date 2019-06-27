@@ -17,25 +17,25 @@ class ManagementScreen(App):
 		for b in buttons:
 			Button(self.screenFrame, text=b[0], command=b[1]).grid()
 
-	def create_course(self):
+	def create(self, fieldsNames, whichfun):
 		self.promptScreen = Toplevel(self.window)
 		self.promptScreen.grab_set()
-
-		self.fields = {
-			'Code': Entry(self.promptScreen),
-			'Name': Entry(self.promptScreen)
-		}
+		self.fields = dict((lambda f: (f, Entry(self.promptScreen)))(f) for f in fieldsNames)
 		for i,key in enumerate(self.fields):
 			Label(self.promptScreen, text=key).grid(row=i, column=0)
 			self.fields[key].grid(row=i, column=1)
+		Button(self.promptScreen, text='Create', command=whichfun).grid()
 
-		Button(self.promptScreen, text='Create', command=self.__create_course).grid()
+	def create_course(self):
+		self.create(['Code','Name'], self.__create_course)
 	def __create_course(self):
-		try:
-			code = int(self.fields['Code'].get())
-			name = self.fields['Name'].get()
-			print('Code:', code, '\nName:', name)
+		code, name = str(int(self.fields['Code'].get())), self.fields['Name'].get()
 
+		self.db.execute('insert into DISCIPLINA select '+code+', \''+name+'\' from DISCIPLINA where 0 in select count(*) from DISCIPLINA where code = '+code+');')
+		try:
+			pass
+			
+			'''
 			self.db.select('count(*)', 'DISCIPLINA', where='cod = '+str(code))
 			
 			if self.db.fetchone()[0]:
@@ -43,46 +43,24 @@ class ManagementScreen(App):
 			else:
 				self.db.insert('DISCIPLINA', (code, name))
 				self.db.commit()
+				self.promptScreen.destroy()'''
 		except:
 			TkMessageBox.showinfo('Error', 'Invalid code')
 		finally:
-			self.promptScreen.destroy()
+			pass
+
 	def create_module(self):
-		self.promptScreen = Toplevel(self.window)
-		self.promptScreen.grab_set()
-
-		self.fields = {
-			'Course code': Entry(self.promptScreen),
-			'Number': Entry(self.promptScreen)
-		}
-		for i,key in enumerate(self.fields):
-			Label(self.promptScreen, text=key).grid(row=i, column=0)
-			self.fields[key].grid(row=i, column=1)
-
-		Button(self.promptScreen, text='Create', command=self.__create_course).grid()
+		self.Create(['Course code', 'Number'], self.__create_module)
 	def __create_module(self):
-		pass
-		'''
 		try:
-			course_code = int(self.fields['Course code'].get())
-			number = self.fields['Number'].get()
-			print('Course code:', course_code, '\nNumber:', number)
-
-			self.db.select('count(*)', 'DISCIPLINA', where='cod = '+str(course_code))
-			self.db.execute('
-				insert into MODULO values
-				( ----- number, course_code)
-
-					')
-			
-			if self.db.fetchone()[0]:
-				
-			else:
-				TkMessageBox.showinfo('Error', 'Unregistered course!')
+			number, course_code = str(int(self.fields['Number'].get())), str(int(self.fields['Course code'].get()))
+			self.db.execute('insert into MODULO select '+number+', '+course_code+' from DISCIPLINA where cod = '+course_code+';')
+			self.db.commit()
+			self.promptScreen.destroy()
 		except:
-			TkMessageBox.showinfo('Error', 'Invalid code ?')
+			TkMessageBox.showinfo('Error', 'Unregistered course or module already exists!')
 		finally:
-			self.promptScreen.destroy()'''
+			pass
 	def create_work(self):
 		pass
 	def __create_work(self):
@@ -91,20 +69,3 @@ class ManagementScreen(App):
 		pass
 	def __create_problem(self):
 		pass
-	
-		'''
-	promptScreen = Toplevel()
-		promptScreen.grab_set()
-		
-		entries = []
-		for i,j in enumerate(['Old ','New ','Confirm new ']):
-			Label(promptScreen, text=j+'password: ').grid(row=i, column=0)
-			entries.append(Entry(promptScreen, show='*'))
-			entries[-1].grid(row=i, column=1)
-		Button(promptScreen, text='Change', command=lambda: ((self.db.execute('update ALUNO set senha = \''+entries[1].get()+'\' where nome = \''+self.username+'\'; select senha from ALUNO where nome = \''+self.username+'\'') or self.db.commit() or self.__change_password() or promptScreen.destroy()) if entries[1].get() == entries[2].get() else TkMessageBox.showinfo('Error', 'Invalid password'))	if entries[0].get() == self.password 	else TkMessageBox.showinfo('Error', 'Wrong password')).grid()
-		
-	def __change_password(self):
-		print('Old pass: ', self.password)
-		self.password = (self.db.fetchone())[0]
-	
-		'''
