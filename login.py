@@ -19,12 +19,12 @@ class LogInScreen(App):
 		self.window.geometry(self.geometry)
 
 		# Cria frame da tela de login
-		self.loginFrame = Frame(self.window)
+		self.screenFrame = Frame(self.window)
 
 		# Cria frames na janela para nome de usuário, senha e botão de autenticar
-		self.usernameFrame = Frame(self.loginFrame)
-		self.passwordFrame = Frame(self.loginFrame)
-		self.buttonFrame   = Frame(self.loginFrame)
+		self.usernameFrame = Frame(self.screenFrame)
+		self.passwordFrame = Frame(self.screenFrame)
+		self.buttonFrame   = Frame(self.screenFrame)
 		self.usernameFrame.pack()
 		self.passwordFrame.pack()
 		self.buttonFrame.pack()
@@ -58,13 +58,13 @@ class LogInScreen(App):
 			TkMessageBox.showinfo('Error', 'Invalid username or password')
 		else:
 			print('-- READ --\nUsername: ', username + '\nPassword: ', password)
-			self.db.select('nome, senha, lo_export(foto, \'/tmp/profilepic\')', 'ALUNO', where='nome = \''+username+'\'')
+			self.db.select('nome, senha, matricula, lo_export(foto, \'/tmp/profilepic\')', 'ALUNO', where='nome = \''+username+'\'')
 			userInfo = self.db.fetchone()
-			# lo_export(foto, \'/tmp/pim.jpg\')
+			# TODO: só estou vendo monitores, tem que ver professores
+			self.db.select('*', 'MONITOR_TURMA', where='aluno_matr = '+str(userInfo[2]))
+			userPrivilege = self.db.fetchone()
 			if userInfo and userInfo[0] == username and userInfo[1] == password:
-				self.screen.clear()
-				self.screen += ['autenticate', username, password]
-				self.stop()
+				self.stop(['home', username, password, 'admin' if userPrivilege else 'common'])
 			else:
 				TkMessageBox.showinfo('Error', 'Invalid username or password')
 	def register(self, event=None):
@@ -74,15 +74,4 @@ class LogInScreen(App):
 			TkMessageBox.showinfo('Error', 'Invalid username or password')
 		else:
 			print('-- CREATE --\nUsername: ', username + '\nPassword: ', password)
-			self.screen.clear()
-			self.screen += ['register', username, password]
-			self.stop()
-	def stop(self):
-			self.loginFrame.pack_forget()
-			self.end.acquire()
-			self.end.notify()
-			self.end.release()
-	def start(self):
-		self.loginFrame.pack()
-
-
+			self.stop(['register', username, password])

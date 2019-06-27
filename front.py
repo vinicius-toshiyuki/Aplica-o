@@ -2,13 +2,17 @@ from app import App
 from login import LogInScreen
 from home import HomeScreen
 from register import RegisterScreen
+from problems import ProblemsScreen
+from users import UsersScreen
 
 app = App(icon='índice.gif', title='Corretor')
 app.add_handler(None, LogInScreen)
-app.add_handler('autenticate', HomeScreen)
+app.add_handler('home', HomeScreen)
 app.add_handler('register', RegisterScreen)
+app.add_handler('problems', ProblemsScreen)
+app.add_handler('users', UsersScreen)
 app.add_handler('logout', app.handler[None])
-app.start()
+app.window_start()
 
 
 

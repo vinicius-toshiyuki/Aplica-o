@@ -42,14 +42,12 @@ class BD:
 		else:
 			print('Erro no commit')
 
-	def init(self):
+	def execute(self, query):
 		if self.__connection:
-			self.__cursor.execute(
-				'drop table if exists usuarios;' +
-				'create table usuarios (matricula integer, senha varchar(10), nome varchar(200), turma char(1), foto oid);'
-			)
+			self.__cursor.execute(query)
 		else:
-			print('Erro no init')
+			print('Erro no execute')
+
 '''
 from PIL import Image
 import base64

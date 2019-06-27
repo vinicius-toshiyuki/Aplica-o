@@ -1,12 +1,14 @@
+from threading import Thread
 from tkinter import *
 from tkinter import messagebox as TkMessageBox
 from PIL import Image
 from app import App
 
 class HomeScreen(App):
-	def __init__(self, username, password, title='', icon=None, geometry='500x250'):
+	def __init__(self, username, password, privilege, title='', icon=None, geometry='500x250'):
 		self.username = username
 		self.password = password
+		self.privilege = privilege
 		self.title = title
 		self.icon = icon
 		self.geometry = geometry
@@ -20,14 +22,14 @@ class HomeScreen(App):
 		self.window.geometry(self.geometry)
 
 		# Cria frame da home self.screen
-		self.homeScreenFrame = Frame(self.window)
+		self.screenFrame = Frame(self.window)
 
 		# Frames
-		self.topbar = Frame(self.homeScreenFrame)
+		self.topbar = Frame(self.screenFrame)
 		self.topbar.pack(anchor=W)
-		self.menu = Frame(self.homeScreenFrame)
+		self.menu = Frame(self.screenFrame)
 		self.menu.pack()
-		self.menuAdmin = Frame(self.homeScreenFrame)
+		self.menuAdmin = Frame(self.screenFrame)
 		self.menuAdmin.pack()
 
 		# Foto de perfil
@@ -52,32 +54,52 @@ class HomeScreen(App):
 		self.logoutButton.pack(side=LEFT, padx=5)
 
 		# Botões do menu
+		# TODO: essas telas desse menus poderiam ter uma super classe comum pra ter botão de voltar e tal
 		self.menuButtons = [
-			Button(self.menu, text='Contests'), 
-			Button(self.menu, text='Problems'), 
-			Button(self.menu, text='Attempts'),
-			Button(self.menu, text='Users'),
-			Button(self.menu, text='Change password')
-		]
-		self.menuAdminButtons = [
-			Button(self.menuAdmin, text='Admin quick'),
-			Button(self.menuAdmin, text='Admin'),
-			Button(self.menuAdmin, text='Cadastrar'),
-			Button(self.menuAdmin, text='Controle de users')
+			Button(self.menu, text='Contests', command=self.contests), 
+			Button(self.menu, text='Problems', command=self.problems), 
+			Button(self.menu, text='Attempts', command=self.attempts),
+			Button(self.menu, text='Users', command=self.users),
+			Button(self.menu, text='Change password', command=self.change_password)
 		]
 		for b in self.menuButtons: b.pack(side=LEFT)
-		for b in self.menuAdminButtons: b.pack(side=LEFT)
+		if self.privilege == 'admin':
+			self.menuAdminButtons = [
+				Button(self.menuAdmin, text='Review', command=self.review),
+				# Button(self.menuAdmin, text='Admin', command=self.admin),
+				Button(self.menuAdmin, text='Privileges', command=self.privileges),
+				Button(self.menuAdmin, text='Contest control', command=self.contest_control)
+			]
+			for b in self.menuAdminButtons: b.pack(side=LEFT)
+	def contests(self):
+		pass
+	def problems(self):
+		self.stop(['problems', self.privilege])
+	def attempts(self):
+		pass
+	def users(self):
+		self.stop(['users', self.username, self.password, self.privilege])
+	def change_password(self):
+		promptScreen = Toplevel()
+		promptScreen.grab_set()
+		
+		entries = []
+		for i,j in enumerate(['Old ','New ','Confirm new ']):
+			Label(promptScreen, text=j+'password: ').grid(row=i, column=0)
+			entries.append(Entry(promptScreen, show='*'))
+			entries[-1].grid(row=i, column=1)
+		Button(promptScreen, text='Change', command=lambda: ((self.db.execute('update ALUNO set senha = \''+entries[1].get()+'\' where nome = \''+self.username+'\'; select senha from ALUNO where nome = \''+self.username+'\'') or self.__change_password() or promptScreen.destroy()) if entries[1].get() == entries[2].get() else TkMessageBox.showinfo('Error', 'Invalid password'))	if entries[0].get() == self.password 	else TkMessageBox.showinfo('Error', 'Wrong password')).grid()
+		
+	def __change_password(self):
+		print('Old pass: ', self.password)
+		self.password = (self.db.fetchone())[0]
+		print('New pass: ', self.password)
+
+	def review(self):
+		pass
+	def privileges(self):
+		pass
+	def contest_control(self):
+		pass
 	def logout(self):
-		self.screen.clear()
-		self.screen += ['logout']
-		self.stop()
-
-	def stop(self):
-		self.homeScreenFrame.pack_forget()
-		self.end.acquire()
-		self.end.notify()
-		self.end.release()
-
-	def start(self):
-		# Renderiza a janela
-		self.homeScreenFrame.pack()
+		self.stop(['logout'])

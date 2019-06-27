@@ -5,8 +5,9 @@ from threading import Thread
 from database import BD
 
 class App:
-	window = Tk()
+	window = Tk(className='Corretor')
 	screen = [None]
+	_previous = [None]
 	lock = threading.Lock()
 	end = threading.Condition(lock)
 	on = True
@@ -21,11 +22,10 @@ class App:
 
 		self.window.resizable(0, 0)
 		# Cria handler para retornos
-		# TODO: tem que tratar pra autenticar mesmo e tal
 		self.handler = {}
 	def add_handler(self, key, call):
 		self.handler[key] = call
-	def start(self):
+	def window_start(self):
 		Thread(target=self.thread_start).start()
 		self.window.mainloop()
 		self.on = False
@@ -39,3 +39,21 @@ class App:
 			self.end.acquire()
 			self.end.wait()
 			self.end.release()
+	def start(self):
+		self.screenFrame.pack()
+	def stop(self, args=[None]):
+		self.screenFrame.pack_forget()
+
+		if args == self._previous:
+			args = [] + self._previous
+
+		self._previous.clear()
+		self._previous += self.screen
+		self.screen.clear()
+		self.screen += args
+
+		self.end.acquire()
+		self.end.notify()
+		self.end.release()
+
+

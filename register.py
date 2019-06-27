@@ -22,19 +22,18 @@ class RegisterScreen(LogInScreen):
 		self.passwordInput.delete(0, END)
 		self.passwordInput.insert(0, self.password)
 
-		# Cria frame de register
-		self.registerFrame = self.loginFrame
+		# Não cria frame de register, usa o da LogInScreen
 
 		# Cria outras Frames e tal
-		self.confirmPassFrame = Frame(self.registerFrame)
+		self.confirmPassFrame = Frame(self.screenFrame)
 		self.confirmPassFrame.pack()
-		self.profilePicFrame = Frame(self.registerFrame)
+		self.profilePicFrame = Frame(self.screenFrame)
 		self.profilePicFrame.pack()
-		self.registerNumberFrame = Frame(self.registerFrame)
+		self.registerNumberFrame = Frame(self.screenFrame)
 		self.registerNumberFrame.pack()
-		self.birthdateFrame = Frame(self.registerFrame)
+		self.birthdateFrame = Frame(self.screenFrame)
 		self.birthdateFrame.pack()
-		self.classFrame = Frame(self.registerFrame)
+		self.classFrame = Frame(self.screenFrame)
 		self.classFrame.pack()
 
 		# Cria confirmação da senha
@@ -110,15 +109,4 @@ class RegisterScreen(LogInScreen):
 			importPic = list('lo_import(\''+self.profilePicPath+'\')')
 			self.db.insert('ALUNO', (registern, username, password, importPic, birthdate, ord(classe.upper())), columns='(matricula, nome, senha, foto, data_nasc, turma_cod)')
 			self.db.commit()
-			self.screen.clear()
-			self.screen += [None]
 			self.stop()
-
-	def stop(self):
-		self.registerFrame.pack_forget()
-		self.end.acquire()
-		self.end.notify()
-		self.end.release()
-
-	def start(self):
-		self.registerFrame.pack()
