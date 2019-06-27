@@ -60,10 +60,10 @@ class LogInScreen(App):
 			print('-- READ --\nUsername: ', username + '\nPassword: ', password)
 			self.db.select('nome, senha, matricula, lo_export(foto, \'/tmp/profilepic\')', 'ALUNO', where='nome = \''+username+'\'')
 			userInfo = self.db.fetchone()
-			# TODO: só estou vendo monitores, tem que ver professores
-			self.db.select('*', 'MONITOR_TURMA', where='aluno_matr = '+str(userInfo[2]))
-			userPrivilege = self.db.fetchone()
 			if userInfo and userInfo[0] == username and userInfo[1] == password:
+				# TODO: só estou vendo monitores, tem que ver professores
+				self.db.select('*', 'MONITOR_TURMA', where='aluno_matr = '+str(userInfo[2]))
+				userPrivilege = self.db.fetchone()
 				self.stop(['home', username, password, 'admin' if userPrivilege else 'common'])
 			else:
 				TkMessageBox.showinfo('Error', 'Invalid username or password')
