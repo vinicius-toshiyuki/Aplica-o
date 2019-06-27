@@ -10,3 +10,6 @@ create database corretor;
 \i create.sql
 \q
 python3 front.py
+
+ainda tem o detalhe que tem que criar um usuário inicial com privilégio de admin
+deopis eu faço um script
