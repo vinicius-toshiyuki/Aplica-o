@@ -16,9 +16,9 @@ class RegisterScreen(LogInScreen):
 		self.loginButton.pack_forget()
 		self.registerButton.configure(relief=RAISED)
 
+		# Muda a Label
+		self.usernameLabel.config(text='Username')
 		# Insere o texto passado nos campos
-		self.usernameInput.delete(0, END)
-		self.usernameInput.insert(0, self.username)
 		self.passwordInput.delete(0, END)
 		self.passwordInput.insert(0, self.password)
 
@@ -27,12 +27,16 @@ class RegisterScreen(LogInScreen):
 		# Cria outras Frames e tal
 		self.confirmPassFrame = Frame(self.screenFrame)
 		self.confirmPassFrame.pack()
+
 		self.profilePicFrame = Frame(self.screenFrame)
 		self.profilePicFrame.pack()
+
 		self.registerNumberFrame = Frame(self.screenFrame)
 		self.registerNumberFrame.pack()
+
 		self.birthdateFrame = Frame(self.screenFrame)
 		self.birthdateFrame.pack()
+
 		self.classFrame = Frame(self.screenFrame)
 		self.classFrame.pack()
 
@@ -56,9 +60,11 @@ class RegisterScreen(LogInScreen):
 		self.registerNumberLabel.pack(side=LEFT)
 		self.registerNumberInput = Entry(self.registerNumberFrame)
 		self.registerNumberInput.pack(side=RIGHT)
+		self.registerNumberInput.delete(0, END)
+		self.registerNumberInput.insert(0, self.username)
 
 		# Cria campo para data de nascimento birthdate
-		self.birthdateLabel = Label(self.birthdateFrame, text='Birthdate (ddmm-yyyy): ')
+		self.birthdateLabel = Label(self.birthdateFrame, text='Birthdate (dd-mm-yyyy): ')
 		self.birthdateLabel.pack(side=LEFT)
 		self.birthdateInput = Entry(self.birthdateFrame)
 		self.birthdateInput.pack(side=RIGHT)
@@ -78,9 +84,9 @@ class RegisterScreen(LogInScreen):
 		self.profilePicPath = profilePicFile.name
 		profilePicFile = Image.open(self.profilePicPath)
 		profilePicFile = profilePicFile.resize((50,50), Image.NEAREST)
-		profilePicFile.save('.temp.png')
+		profilePicFile.save('/tmp/temp.png')
 
-		profilePicFile = PhotoImage(file='.temp.png')
+		profilePicFile = PhotoImage(file='/tmp/temp.png')
 
 		self.profilePicImageLabel.configure(image=profilePicFile)
 		self.profilePicImageLabel.profilePicFile = profilePicFile
@@ -106,7 +112,7 @@ class RegisterScreen(LogInScreen):
 		else:
 			# TODO: fazer uma função pra abstrari mais esses insert e tudo
 			# TODO: colocar a data de cadastro e semestre numa função no sql
-			importPic = list('lo_import(\''+self.profilePicPath+'\')')
+			importPic = list('lo_import(\'/tmp/temp.png\')')
 			self.db.insert('ALUNO', (registern, username, password, importPic, birthdate, ord(classe.upper())), columns='(matricula, nome, senha, foto, data_nasc, turma_cod)')
 			self.db.commit()
 			self.stop()

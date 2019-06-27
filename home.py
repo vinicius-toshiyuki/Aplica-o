@@ -6,24 +6,11 @@ from app import App
 
 class HomeScreen(App):
 	def __init__(self, username, password, privilege, title='', icon=None, geometry='500x250'):
+		self._init(title, icon, geometry)
 		self.username = username
 		self.password = password
 		self.privilege = privilege
-		self.title = title
-		self.icon = icon
-		self.geometry = geometry
-
-		self.window.title(self.title)
-		# Configura ícone da janela
-		if self.icon != None:
-			self.windowicon = PhotoImage(file=self.icon)
-			self.window.tk.call('wm', 'iconphoto', self.window._w, self.windowicon)
-		# Configura tamanho da janela (largura x altura)
-		self.window.geometry(self.geometry)
-
-		# Cria frame da home self.screen
-		self.screenFrame = Frame(self.window)
-
+		
 		# Frames
 		self.topbar = Frame(self.screenFrame)
 		self.topbar.pack(anchor=W)
@@ -68,7 +55,8 @@ class HomeScreen(App):
 				Button(self.menuAdmin, text='Review', command=self.review),
 				# Button(self.menuAdmin, text='Admin', command=self.admin),
 				Button(self.menuAdmin, text='Privileges', command=self.privileges),
-				Button(self.menuAdmin, text='Contest control', command=self.contest_control)
+				Button(self.menuAdmin, text='Contest control', command=self.contest_control),
+				Button(self.menuAdmin, text='Class management', command=self.class_management)
 			]
 			for b in self.menuAdminButtons: b.pack(side=LEFT)
 	def contests(self):
@@ -88,7 +76,7 @@ class HomeScreen(App):
 			Label(promptScreen, text=j+'password: ').grid(row=i, column=0)
 			entries.append(Entry(promptScreen, show='*'))
 			entries[-1].grid(row=i, column=1)
-		Button(promptScreen, text='Change', command=lambda: ((self.db.execute('update ALUNO set senha = \''+entries[1].get()+'\' where nome = \''+self.username+'\'; select senha from ALUNO where nome = \''+self.username+'\'') or self.__change_password() or promptScreen.destroy()) if entries[1].get() == entries[2].get() else TkMessageBox.showinfo('Error', 'Invalid password'))	if entries[0].get() == self.password 	else TkMessageBox.showinfo('Error', 'Wrong password')).grid()
+		Button(promptScreen, text='Change', command=lambda: ((self.db.execute('update ALUNO set senha = \''+entries[1].get()+'\' where nome = \''+self.username+'\'; select senha from ALUNO where nome = \''+self.username+'\'') or self.db.commit() or self.__change_password() or promptScreen.destroy()) if entries[1].get() == entries[2].get() else TkMessageBox.showinfo('Error', 'Invalid password'))	if entries[0].get() == self.password 	else TkMessageBox.showinfo('Error', 'Wrong password')).grid()
 		
 	def __change_password(self):
 		print('Old pass: ', self.password)
@@ -100,6 +88,9 @@ class HomeScreen(App):
 	def privileges(self):
 		pass
 	def contest_control(self):
+		pass
+	def class_management(self):
+		self.stop(['management'])
 		pass
 	def logout(self):
 		self.stop(['logout'])

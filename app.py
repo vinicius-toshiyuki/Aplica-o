@@ -39,6 +39,23 @@ class App:
 			self.end.acquire()
 			self.end.wait()
 			self.end.release()
+	def _init(self, title, icon, geometry):
+		self.title = title
+		self.icon = icon
+		self.geometry = geometry
+
+		self.window.title(self.title)
+		# Configura ícone da janela
+		if self.icon != None:
+			self.windowicon = PhotoImage(file=self.icon)
+			self.window.tk.call('wm', 'iconphoto', self.window._w, self.windowicon)
+		# Configura tamanho da janela (largura x altura)
+		self.window.geometry(self.geometry)
+
+		# Cria frame da screen
+		self.screenFrame = Frame(self.window)
+	def back(self):
+		self.stop(self._previous)
 	def start(self):
 		self.screenFrame.pack()
 	def stop(self, args=[None]):
