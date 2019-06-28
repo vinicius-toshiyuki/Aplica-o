@@ -29,28 +29,18 @@ class ManagementScreen(App):
 	def create_course(self):
 		self.create(['Code','Name'], self.__create_course)
 	def __create_course(self):
-		code, name = str(int(self.fields['Code'].get())), self.fields['Name'].get()
-
-		self.db.execute('insert into DISCIPLINA select '+code+', \''+name+'\' from DISCIPLINA where 0 in select count(*) from DISCIPLINA where code = '+code+');')
 		try:
-			pass
-			
-			'''
-			self.db.select('count(*)', 'DISCIPLINA', where='cod = '+str(code))
-			
-			if self.db.fetchone()[0]:
-				TkMessageBox.showinfo('Error', 'Code already registered!')
-			else:
-				self.db.insert('DISCIPLINA', (code, name))
-				self.db.commit()
-				self.promptScreen.destroy()'''
+			code, name = str(int(self.fields['Code'].get())), self.fields['Name'].get()
+			self.db.execute('insert into DISCIPLINA values ('+code+', \''+name+'\');')
+			self.db.commit()
+			self.promptScreen.destroy()
 		except:
-			TkMessageBox.showinfo('Error', 'Invalid code')
+			TkMessageBox.showinfo('Error', 'Invalid code!')
 		finally:
 			pass
 
 	def create_module(self):
-		self.Create(['Course code', 'Number'], self.__create_module)
+		self.create(['Course code', 'Number'], self.__create_module)
 	def __create_module(self):
 		try:
 			number, course_code = str(int(self.fields['Number'].get())), str(int(self.fields['Course code'].get()))
@@ -61,11 +51,29 @@ class ManagementScreen(App):
 			TkMessageBox.showinfo('Error', 'Unregistered course or module already exists!')
 		finally:
 			pass
+
 	def create_work(self):
-		pass
+		self.create(['Number', 'Description', 'Begin', 'End', 'Module', 'Course'], self.__create_work)
 	def __create_work(self):
-		pass
+		try:
+			values = ','.join([(lambda k: '\''+self.fields[k].get()+'\'' if not self.fields[k].get().isdigit() else self.fields[k].get())(k) for k in self.fields])
+			self.db.execute('insert into LISTA (cod, descr, data_hr_inicio, data_hr_fim, modulo_cod, disc_cod, visibilidade, prova) values ('+values+', \'S\', \'N\');')
+			self.db.commit()
+			self.promptScreen.destroy()
+		except:
+			TkMessageBox.showinfo('Error', 'Wrong input')
+		finally:
+			pass
+
 	def create_problem(self):
-		pass
+		self.create(['Number','Work number','Title','Description','Dificuldade','Limite de memória','Limite de tempo'], self.__create_problem)
 	def __create_problem(self):
-		pass
+		try:
+			values = ','.join([(lambda k: '\''+self.fields[k].get()+'\'' if not self.fields[k].get().isdigit() else self.fields[k].get())(k) for k in self.fields])
+			self.db.execute('insert into PROBLEMA values ('+values+');')
+			self.db.commit()
+			self.promptScreen.destroy()
+		except:
+			TkMessageBox.showinfo('Error', 'Wrong input')
+		finally:
+			pass
