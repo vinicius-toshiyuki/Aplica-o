@@ -64,7 +64,7 @@ class RegisterScreen(LogInScreen):
 		self.registerNumberInput.insert(0, self.username)
 
 		# Cria campo para data de nascimento birthdate
-		self.birthdateLabel = Label(self.birthdateFrame, text='Birthdate (dd-mm-yyyy): ')
+		self.birthdateLabel = Label(self.birthdateFrame, text='Birthdate (dd/mm/yyyy): ')
 		self.birthdateLabel.pack(side=LEFT)
 		self.birthdateInput = Entry(self.birthdateFrame)
 		self.birthdateInput.pack(side=RIGHT)
@@ -84,9 +84,9 @@ class RegisterScreen(LogInScreen):
 		self.profilePicPath = profilePicFile.name
 		profilePicFile = Image.open(self.profilePicPath)
 		profilePicFile = profilePicFile.resize((50,50), Image.NEAREST)
-		profilePicFile.save('./tmp/temp.png')
+		profilePicFile.save('/tmp/temp.png')
 
-		profilePicFile = PhotoImage(file='./tmp/temp.png')
+		profilePicFile = PhotoImage(file='/tmp/temp.png')
 
 		self.profilePicImageLabel.configure(image=profilePicFile)
 		self.profilePicImageLabel.profilePicFile = profilePicFile
@@ -112,7 +112,7 @@ class RegisterScreen(LogInScreen):
 		else:
 			# TODO: fazer uma função pra abstrari mais esses insert e tudo
 			# TODO: colocar a data de cadastro e semestre numa função no sql
-			importPic = list('lo_import(\'./tmp/temp.png\')')
+			importPic = list('lo_import(\'/tmp/temp.png\')')
 			self.db.insert('ALUNO', (registern, username, password, importPic, birthdate, ord(classe.upper())), columns='(matricula, nome, senha, foto, data_nasc, turma_cod)')
 			self.db.commit()
 			self.stop()
