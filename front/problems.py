@@ -3,13 +3,12 @@ from tkinter import messagebox as TkMessageBox
 from front.app import App
 
 class ProblemsScreen(App):
-	def __init__(self, privilege, title='', icon=None, geometry='400x250'):
-		geometry='700x250'
+	def __init__(self, privilege, title='', icon=None, geometry=''):
 		self._init(title, icon, geometry)
 		self.privilege = privilege
 		
 		# Botão de voltar
-		Button(self.screenFrame, text='Back', command=self.back).grid()
+		Button(self.screenFrame, text='Back', command=self._back).grid()
 
 		self.db.select('lista_cod, titulo, descr, dificul', 'PROBLEMA')
 		# Uma lista

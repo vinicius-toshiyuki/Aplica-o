@@ -4,67 +4,68 @@ from PIL import Image
 from front.app import App
 
 class LogInScreen(App):
-	def __init__(self, title='', icon=None, geometry='400x250'):
+	def __init__(self, title='', icon=None, geometry=''):
 		self._init(title, icon, geometry)
 
-		# Cria frames na janela para nome de usuário, senha e botão de autenticar
-		self.usernameFrame = Frame(self.screenFrame)
-		self.passwordFrame = Frame(self.screenFrame)
-		self.buttonFrame   = Frame(self.screenFrame)
-		self.usernameFrame.pack()
-		self.passwordFrame.pack()
-		self.buttonFrame.pack()
+		self.fields = {}
+		fieldsNames = ('Register nº', 'Password')
+		for i,f in enumerate(fieldsNames):
+			self.fields[f] = (
+						Label(self.screenFrame, text=f, bd = 7),
+						Entry(self.screenFrame)
+						)
+			self.fields[f][0].grid(row=i, column=0)
+			self.fields[f][1].grid(row=i, column=1)
+			self.fields[f][1].bind('<Return>', self.__autenticate)
+		
+		self.fields['Register nº'][1].focus_set()
+		self.fields['Password'][1].config(show='*')
 
-		# Cria campo de entrada para usuário na frame de usuário
-		self.usernameLabel = Label(self.usernameFrame, text='Register nº')
-		self.usernameInput = Entry(self.usernameFrame)
-		self.usernameInput.bind('<Return>', self.autenticate)
-		self.usernameInput.focus_set()
-		self.usernameLabel.pack(side=LEFT)
-		self.usernameInput.pack(side=RIGHT)
+		self.buttons = {}
+		buttonsNames = (('Log in',self.__autenticate),('Register',self.__register))
+		for b in buttonsNames:
+			self.buttons[b[0]] = Button(self.screenFrame, text=b[0], pady=7, command=b[1])
+			self.buttons[b[0]].bind('<Return>', b[1])
+			self.buttons[b[0]].grid()
 
-		# Cria campo de entrada para senha na frame de senha
-		self.passwordLabel = Label(self.passwordFrame, text='Password')
-		self.passwordInput = Entry(self.passwordFrame, show='*')
-		self.passwordInput.bind('<Return>', self.autenticate)
-		self.passwordLabel.pack(side=LEFT)
-		self.passwordInput.pack(side=RIGHT)
+		self.buttons['Register'].config(relief=FLAT)
 
-		# Cria botões para autenticar e registrar
-		self.loginButton    = Button(self.buttonFrame, text='Autenticate', command=self.autenticate)
-		self.registerButton = Button(self.buttonFrame, text='Register', relief=FLAT, command=self.register)
-		self.loginButton.bind('<Return>', self.autenticate)
-		self.registerButton.bind('<Return>', self.register)
-		self.loginButton.pack()
-		self.registerButton.pack()
-	def autenticate(self, event=None):
-		username = self.usernameInput.get()
-		password = self.passwordInput.get()
-		if not len(username) or not len(password):
-			TkMessageBox.showinfo('Error', 'Invalid username or password')
-		else:
-			print('-- READ --\nUsername: ', username + '\nPassword: ', password)
-					# TODO: fazer em um select só
-			self.db.select('cod, senha', 'PROFESSOR', where='cod = '+username)
+	def __autenticate(self, event=None):
+		registern = self.fields['Register nº'][1].get()
+		password = self.fields['Password'][1].get()
+
+		try:
+			if not len(registern) or not len(password) or not registern.isdigit():
+				raise ValueError('Invalid register nº or password')
+			# TODO: Dá pra fazer um arquivo com funções pra interagirem com o banco e aí ter uma função pra ver se um usuário existe
+			self.db.select('cod, senha', 'PROFESSOR', where='cod = '+registern)
 			userInfo = self.db.fetchone()
-			if userInfo and str(userInfo[0]) == username and userInfo[1] == password:
-				self.db.select('lo_export(foto, \'/tmp/profilepic\')', 'PROFESSOR', where='cod = '+username)
-				self.stop(['home', username, password, 'admin'])
+			if userInfo:
+				privilege = 'admin'
+				table=('PROFESSOR','cod')
 			else:
-				self.db.select('matricula, senha', 'ALUNO', where='matricula = '+username)
+				self.db.select('matricula, senha', 'ALUNO', where='matricula = '+registern)
 				userInfo = self.db.fetchone()
-				if userInfo and str(userInfo[0]) == username and userInfo[1] == password:
-					self.db.select('lo_export(foto, \'/tmp/profilepic\')', 'ALUNO', where='matricula = '+username)
-					self.db.select('*', 'MONITOR_TURMA', where='aluno_matr = '+str(userInfo[0]))
-					userPrivilege = self.db.fetchone()
-					self.stop(['home', username, password, 'admin' if userPrivilege else 'common'])
+				if userInfo:
+					self.db.select('*', 'MONITOR_TURMA', where='aluno_matr = '+registern)
+					if self.db.fetchone():
+						privilege = 'admin'
+					else:
+						privilege = 'common'
+					table = ('ALUNO','matricula')
 				else:
-					TkMessageBox.showinfo('Error', 'Invalid username or password')
-	def register(self, event=None):
-		username = self.usernameInput.get()
-		password = self.passwordInput.get()
-		if not len(username) or not len(password):
-			TkMessageBox.showinfo('Error', 'Invalid username or password')
-		else:
-			print('-- CREATE --\nRegister nº: ', username + '\nPassword: ', password)
-			self.stop(['register', username, password])
+					raise ValueError('User not registered')
+
+			if str(userInfo[0]) == registern and userInfo[1] == password:
+				self.db.select('lo_export(foto, \'/tmp/profilepic\')', table[0], where=table[1]+' = '+registern)
+				self._stop(['home', registern, password, privilege])
+		except Exception as e:
+			print(e)
+			TkMessageBox.showinfo('Error', 'Invalid register nº or password')
+		finally:
+			pass
+
+	def __register(self, event=None):
+		registern = self.fields['Register nº'][1].get()
+		password = self.fields['Password'][1].get()
+		self._stop(['register', registern, password])

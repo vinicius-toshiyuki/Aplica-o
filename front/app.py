@@ -7,7 +7,7 @@ from back.database import BD
 class App:
 	window = Tk(className='Corretor')
 	screen = [None]
-	_previous = [None]
+	_previous = [['exit']]
 	lock = threading.Lock()
 	end = threading.Condition(lock)
 	on = True
@@ -26,16 +26,16 @@ class App:
 	def add_handler(self, key, call):
 		self.handler[key] = call
 	def window_start(self):
-		Thread(target=self.thread_start).start()
+		Thread(target=self.__thread_start).start()
 		self.window.mainloop()
 		self.on = False
 		self.end.acquire()
 		self.end.notify()
 		self.end.release()
-	def thread_start(self):
+	def __thread_start(self):
 		while self.on:
 			print(self.screen)
-			self.handler[self.screen[0]](*self.screen[1:], title=self.title, icon=self.icon).start()
+			self.handler[self.screen[0]](*self.screen[1:], title=self.title, icon=self.icon)._start()
 			self.end.acquire()
 			self.end.wait()
 			self.end.release()
@@ -54,18 +54,22 @@ class App:
 
 		# Cria frame da screen
 		self.screenFrame = Frame(self.window)
-	def back(self):
-		self.stop(self._previous)
-	def start(self):
-		self.screenFrame.pack()
-	def stop(self, args=[None]):
-		self.screenFrame.pack_forget()
+		self.screenFrame.config(bd=10)
 
-		if args == self._previous:
-			args = [] + self._previous
+		self.window.grid_columnconfigure(0, minsize=250)
+		self.window.grid_rowconfigure(0,minsize=200)
+	def _back(self):
+		self._stop(self._previous[-1])
+	def _start(self):
+		self.screenFrame.grid(sticky=N+W)
+	def _stop(self, args=[None]):
+		self.screenFrame.grid_forget()
 
-		self._previous.clear()
-		self._previous += self.screen
+		if args == self._previous[-1]:
+			args = [] + self._previous[-1]
+			self._previous.pop()
+		else:
+			self._previous.append([] + self.screen)
 		self.screen.clear()
 		self.screen += args
 

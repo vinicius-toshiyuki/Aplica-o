@@ -5,69 +5,83 @@ from PIL import Image
 from front.app import App
 
 class HomeScreen(App):
-	def __init__(self, username, password, privilege, title='', icon=None, geometry='500x250'):
+	def __init__(self, registern, password, privilege, title='', icon=None, geometry=''):
 		self._init(title, icon, geometry)
-		self.username = username
+		self.registern = registern
 		self.password = password
 		self.privilege = privilege
 		
 		# Frames
-		self.topbar = Frame(self.screenFrame)
-		self.topbar.pack(anchor=W)
+		self.topbar = Frame(self.screenFrame, bd=5)
+		self.topbar.grid(sticky=E+W+N+S)
 		self.menu = Frame(self.screenFrame)
-		self.menu.pack()
+		self.menu.grid(sticky=E+W+N+S)
 		self.menuAdmin = Frame(self.screenFrame)
-		self.menuAdmin.pack()
+		self.menuAdmin.grid(sticky=E+W+N+S)
 
 		# Foto de perfil
-		# TODO: Tem que ser a foto de perfil ne
-		imraw = Image.open('/tmp/profilepic')
-		imraw = imraw.resize((50,50), Image.NEAREST)
-		imraw.save('.temp.png')
+		try:
+			imraw = Image.open('/tmp/profilepic')
+			imraw = imraw.resize((50,50), Image.NEAREST)
+			imraw.save('/tmp/temp.png')
 
-		im = PhotoImage(file='.temp.png')
+			im = PhotoImage(file='/tmp/temp.png')
 
-		self.profile = Label(self.topbar, image=im, background='white')
-		self.profile.im = im
+			self.profile = Label(self.topbar, image=im, background='white')
+			self.profile.im = im
 
-		self.profile.pack(side=LEFT, padx=5)
+			self.profile.pack(side=LEFT)
+		except Exception as e:
+			print(e)
+		finally:
+			pass
 
 		# Nome do usuário
-		self.name = Label(self.topbar, text=username, bd=2)
-		self.name.pack(side=LEFT, padx=5)
+		self.name = Label(self.topbar, text=registern, bd=5)
+		self.name.pack(side=LEFT)
 
 		# Sair
-		self.logoutButton = Button(self.topbar, text='Log out', command=self.logout)
-		self.logoutButton.pack(side=LEFT, padx=5)
+		self.logoutButton = Button(self.topbar, text='Log out', command=self.__logout, padx=5)
+		self.logoutButton.pack(side=LEFT)
+		self.logoutButton.bind('<Return>', self.__logout)
 
 		# Botões do menu
-		# TODO: essas telas desse menus poderiam ter uma super classe comum pra ter botão de voltar e tal
-		self.menuButtons = [
-			Button(self.menu, text='Contests', command=self.contests), 
-			Button(self.menu, text='Problems', command=self.problems), 
-			Button(self.menu, text='Attempts', command=self.attempts),
-			Button(self.menu, text='Users', command=self.users),
-			Button(self.menu, text='Change password', command=self.change_password)
-		]
-		for b in self.menuButtons: b.pack(side=LEFT)
+		self.buttonsMenu = {}
+		buttonsNames = (
+				('Contests'        , self.__contests),
+				('Problems'        , self.__problems),
+				('Attempts'        , self.__attempts),
+				('Users'           , self.__users),
+				('Change password' , self.__change_password)
+				)
+		for i,b in enumerate(buttonsNames):
+			self.buttonsMenu[b[0]] = Button(self.menu, text=b[0], pady=7, command=b[1])
+			self.buttonsMenu[b[0]].bind('<Return>', b[1])
+			self.buttonsMenu[b[0]].grid(row=0, column=i)
+
 		if self.privilege == 'admin':
-			self.menuAdminButtons = [
-				Button(self.menuAdmin, text='Review', command=self.review),
-				# Button(self.menuAdmin, text='Admin', command=self.admin),
-				Button(self.menuAdmin, text='Privileges', command=self.privileges),
-				Button(self.menuAdmin, text='Contest control', command=self.contest_control),
-				Button(self.menuAdmin, text='Class management', command=self.class_management)
-			]
-			for b in self.menuAdminButtons: b.pack(side=LEFT)
-	def contests(self):
+			# Botões do admin
+			self.buttonsAdmin = {}
+			buttonsNames = (
+					('Review'           , self.__review),
+					('Privileges'       , self.__privileges),
+					('Contest control'  , self.__contest_control),
+					('Class management' , self.__class_management)
+					)
+			for i,b in enumerate(buttonsNames):
+				self.buttonsAdmin[b[0]] = Button(self.menuAdmin, text=b[0], pady=7, command=b[1])
+				self.buttonsAdmin[b[0]].bind('<Return>', b[1])
+				self.buttonsAdmin[b[0]].grid(row=0, column=i)
+
+	def __contests(self, e=None):
 		pass
-	def problems(self):
-		self.stop(['problems', self.privilege])
-	def attempts(self):
+	def __problems(self, e=None):
+		self._stop(['problems', self.privilege])
+	def __attempts(self, e=None):
 		pass
-	def users(self):
-		self.stop(['users', self.username, self.password, self.privilege])
-	def change_password(self):
+	def __users(self, e=None):
+		self._stop(['users', self.registern, self.password, self.privilege])
+	def __change_password(self, e=None):
 		promptScreen = Toplevel()
 		promptScreen.grab_set()
 		
@@ -76,21 +90,20 @@ class HomeScreen(App):
 			Label(promptScreen, text=j+'password: ').grid(row=i, column=0)
 			entries.append(Entry(promptScreen, show='*'))
 			entries[-1].grid(row=i, column=1)
-		Button(promptScreen, text='Change', command=lambda: ((self.db.execute('update ALUNO set senha = \''+entries[1].get()+'\' where nome = \''+self.username+'\'; select senha from ALUNO where nome = \''+self.username+'\'') or self.db.commit() or self.__change_password() or promptScreen.destroy()) if entries[1].get() == entries[2].get() else TkMessageBox.showinfo('Error', 'Invalid password'))	if entries[0].get() == self.password 	else TkMessageBox.showinfo('Error', 'Wrong password')).grid()
+		Button(promptScreen, text='Change', command=lambda: ((self.db.execute('update ALUNO set senha = \''+entries[1].get()+'\' where nome = \''+self.registern+'\'; select senha from ALUNO where nome = \''+self.registern+'\'') or self.db.commit() or self.__change_password_() or promptScreen.destroy()) if entries[1].get() == entries[2].get() else TkMessageBox.showinfo('Error', 'Invalid password'))	if entries[0].get() == self.password 	else TkMessageBox.showinfo('Error', 'Wrong password')).grid()
 		
-	def __change_password(self):
+	def __change_password_(self):
 		print('Old pass: ', self.password)
 		self.password = (self.db.fetchone())[0]
 		print('New pass: ', self.password)
 
-	def review(self):
+	def __review(self, e=None):
 		pass
-	def privileges(self):
+	def __privileges(self, e=None):
 		pass
-	def contest_control(self):
+	def __contest_control(self, e=None):
 		pass
-	def class_management(self):
-		self.stop(['management'])
-		pass
-	def logout(self):
-		self.stop(['logout'])
+	def __class_management(self, e=None):
+		self._stop(['management'])
+	def __logout(self, e=None):
+		self._stop(['logout'])
