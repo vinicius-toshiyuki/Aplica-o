@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import messagebox as TkMessageBox
 from PIL import Image
-from app import App
+from front.app import App
 
 class UsersScreen(App):
 	def __init__(self, username, password, privilege, title='', icon=None, geometry='400x250'):

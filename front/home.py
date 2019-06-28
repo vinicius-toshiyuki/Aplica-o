@@ -2,7 +2,7 @@ from threading import Thread
 from tkinter import *
 from tkinter import messagebox as TkMessageBox
 from PIL import Image
-from app import App
+from front.app import App
 
 class HomeScreen(App):
 	def __init__(self, username, password, privilege, title='', icon=None, geometry='500x250'):
@@ -21,7 +21,7 @@ class HomeScreen(App):
 
 		# Foto de perfil
 		# TODO: Tem que ser a foto de perfil ne
-		imraw = Image.open('/tmp/profilepic')
+		imraw = Image.open('./tmp/profilepic')
 		imraw = imraw.resize((50,50), Image.NEAREST)
 		imraw.save('.temp.png')
 
