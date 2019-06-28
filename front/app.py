@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import messagebox as TkMessageBox
 import threading
 from threading import Thread
-from database import BD
+from back.database import BD
 
 class App:
 	window = Tk(className='Corretor')
