@@ -12,19 +12,20 @@ class ManagementScreen(App):
 			('Create course', self.create_course),
 			('Create module', self.create_module),
 			('Create work', self.create_work),
-			('Create problem', self.create_problem)
+			('Create problem', self.create_problem),
+			('Manage work', self.manage_work)
 		]
 		for b in buttons:
 			Button(self.screenFrame, text=b[0], command=b[1]).grid()
 
-	def create(self, fieldsNames, whichfun):
+	def create(self, fieldsNames, whichfun, buttonLabel='Create'):
 		self.promptScreen = Toplevel(self.window)
 		self.promptScreen.grab_set()
 		self.fields = dict((lambda f: (f, Entry(self.promptScreen)))(f) for f in fieldsNames)
 		for i,key in enumerate(self.fields):
 			Label(self.promptScreen, text=key).grid(row=i, column=0)
 			self.fields[key].grid(row=i, column=1)
-		Button(self.promptScreen, text='Create', command=whichfun).grid()
+		Button(self.promptScreen, text=buttonLabel, command=whichfun).grid()
 
 	def create_course(self):
 		self.create(['Code','Name'], self.__create_course)
@@ -73,6 +74,21 @@ class ManagementScreen(App):
 			self.db.execute('insert into PROBLEMA values ('+values+');')
 			self.db.commit()
 			self.promptScreen.destroy()
+		except:
+			TkMessageBox.showinfo('Error', 'Wrong input')
+		finally:
+			pass
+
+	def manage_work(self):
+		self.create(['Number'], self.__manage_work, buttonLabel='Get')
+	def __manage_work(self):
+#			values = ','.join([(lambda k: '\''+self.fields[k].get()+'\'' if not self.fields[k].get().isdigit() else self.fields[k].get())(k) for k in self.fields])
+#self.promptScreen.destroy()
+		try:
+			self.db.execute('select cod,descr from LISTA where cod = '+self.fields['Number'].get()+';')
+			for l in self.db.fetchall():
+				for i in l:
+					Label(self.promptScreen, text=i).grid()
 		except:
 			TkMessageBox.showinfo('Error', 'Wrong input')
 		finally:
