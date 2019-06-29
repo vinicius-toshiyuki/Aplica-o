@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import messagebox as TkMessageBox
 import threading
 from threading import Thread
-from back.database import BD
+from back.database import *
 
 class App:
 	window = Tk(className='Corretor')
@@ -11,14 +11,14 @@ class App:
 	lock = threading.Lock()
 	end = threading.Condition(lock)
 	on = True
-	db = BD()
+	db = Corretor()
 
 	def __init__(self, title='', icon=None, geometry='400x250'):
 		self.title = title
 		self.icon = icon
 		self.geometry = geometry
 
-		self.db.connect()
+		self.db.connect(database='test')
 
 		self.window.resizable(0, 0)
 		# Cria handler para retornos

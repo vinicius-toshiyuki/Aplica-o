@@ -7,8 +7,7 @@ class CourseScreen(ManagementScreen):
 		self._init(title, icon, geometry)
 		self.code = code
 
-		self.db.select('*', 'MODULO', where='disc_cod = '+str(self.code))
-		for i,c in enumerate([('Module number',)] + self.db.fetchall()):
+		for i,c in enumerate([('Module number',)] + self.db.get_modules(get='numero',disciplina=self.code)):
 			Label(self.screenFrame, text=str(c[0]), bd=1).grid(row=i, column=0)
 			if i:
 				callback = lambda module_number=c[0]: self._stop(['module', self.code, module_number])

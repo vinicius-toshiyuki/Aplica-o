@@ -5,15 +5,15 @@ from front.app import App
 from PIL import Image
 
 class RegisterScreen(App):
-	def __init__(self, registern, password, title='', icon=None, geometry=''):
+	def __init__(self, email, password, title='', icon=None, geometry=''):
 		self._init(title, icon, geometry)
-		self.registern = registern
+		self.email = email
 		self.password = password
 
 		Button(self.screenFrame, text='Back', pady=7, command=self._back).grid(row=0, column=0)
 
 		self.fields = {}
-		fieldsNames = ('Register nº', 'Password', 'Confirm password', 'Username', 'Birthdate', 'Class')
+		fieldsNames = ('Register nº', 'Password', 'Confirm password', 'Username', 'E-mail', 'Birthdate', 'Class')
 		for i,f in enumerate(fieldsNames):
 			self.fields[f] = (
 						Label(self.screenFrame, text=f, bd = 7),
@@ -23,7 +23,7 @@ class RegisterScreen(App):
 			self.fields[f][1].grid(row=i+1, column=1)
 			self.fields[f][1].bind('<Return>', self.__register)
 			
-		self.fields['Register nº'][1].insert(0, self.registern)
+		self.fields['E-mail'][1].insert(0, self.email)
 		self.fields['Register nº'][1].focus_set()
 		self.fields['Password'][1].insert(0, self.password)
 		self.fields['Password'][1].config(show='*')
@@ -61,9 +61,9 @@ class RegisterScreen(App):
 
 		profilePicFile = Image.open(self.profilePicPath)
 		profilePicFile = profilePicFile.resize((50,50), Image.NEAREST)
-		profilePicFile.save('/tmp/temp.png')
+		profilePicFile.save('./tmp/temp.png')
 
-		profilePicFile = PhotoImage(file='/tmp/temp.png')
+		profilePicFile = PhotoImage(file='./tmp/temp.png')
 
 		self.profilePicImageLabel.configure(image=profilePicFile)
 		self.profilePicImageLabel.profilePicFile = profilePicFile
@@ -76,6 +76,7 @@ class RegisterScreen(App):
 		password = self.fields['Password'][1].get()
 		confirmation = self.fields['Confirm password'][1].get()
 		username = self.fields['Username'][1].get()
+		email = self.fields['E-mail'][1].get()
 		birthdate = self.fields['Birthdate'][1].get()
 		classe = self.fields['Class'][1].get()
 
@@ -88,12 +89,19 @@ class RegisterScreen(App):
 		elif not len(registern) or not len(birthdate) or not len(classe):
 			TkMessageBox.showinfo('Erro', 'Jouhou ga tarinai')
 		else:
-			importPic = list('lo_import(\'/tmp/temp.png\')')
 			try:
-				self.db.insert('ALUNO', (registern, registern, password, importPic, birthdate, ord(classe.upper())), columns='(matricula, nome, senha, foto, data_nasc, turma_cod)')
+				self.db.insert_aluno(
+						matricula=registern,
+						nome=username,
+						email=email,
+						senha=password,
+						foto='./tmp/temp.png',
+						data_de_nascimento=birthdate,
+						turma=ord(classe.upper())
+						)
 				self._stop()
 			except Exception as e:
 				TkMessageBox.showinfo('Error', 'Invalid data')
 				print(e)
 			finally:
-				self.db.commit()
+				pass

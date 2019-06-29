@@ -8,7 +8,7 @@ class LogInScreen(App):
 		self._init(title, icon, geometry)
 
 		self.fields = {}
-		fieldsNames = ('Register nº', 'Password')
+		fieldsNames = ('E-mail', 'Password')
 		for i,f in enumerate(fieldsNames):
 			self.fields[f] = (
 						Label(self.screenFrame, text=f, bd = 7),
@@ -18,7 +18,7 @@ class LogInScreen(App):
 			self.fields[f][1].grid(row=i, column=1)
 			self.fields[f][1].bind('<Return>', self.__autenticate)
 		
-		self.fields['Register nº'][1].focus_set()
+		self.fields['E-mail'][1].focus_set()
 		self.fields['Password'][1].config(show='*')
 
 		self.buttons = {}
@@ -31,41 +31,31 @@ class LogInScreen(App):
 		self.buttons['Register'].config(relief=FLAT)
 
 	def __autenticate(self, event=None):
-		registern = self.fields['Register nº'][1].get()
+		email = self.fields['E-mail'][1].get()
 		password = self.fields['Password'][1].get()
 
 		try:
-			if not len(registern) or not len(password) or not registern.isdigit():
-				raise ValueError('Invalid register nº or password')
-			# TODO: Dá pra fazer um arquivo com funções pra interagirem com o banco e aí ter uma função pra ver se um usuário existe
-			self.db.select('cod, senha', 'PROFESSOR', where='cod = '+registern)
-			userInfo = self.db.fetchone()
+			if not len(email) or not len(password):
+				raise ValueError('Invalid email or password')
+			userInfo = self.db.get_users(get='senha', table='PROFESSOR', email=email)
 			if userInfo:
 				privilege = 'admin'
-				table=('PROFESSOR','cod')
 			else:
-				self.db.select('matricula, senha', 'ALUNO', where='matricula = '+registern)
-				userInfo = self.db.fetchone()
+				userInfo = self.db.get_users(get=['senha', 'matricula'], email=email)
 				if userInfo:
-					self.db.select('*', 'MONITOR_TURMA', where='aluno_matr = '+registern)
-					if self.db.fetchone():
-						privilege = 'admin'
-					else:
-						privilege = 'common'
-					table = ('ALUNO','matricula')
+					privilege = 'admin' if self.db.is_tutor(userInfo[1]) else 'common'
 				else:
 					raise ValueError('User not registered')
 
-			if str(userInfo[0]) == registern and userInfo[1] == password:
-				self.db.select('lo_export(foto, \'/tmp/profilepic\')', table[0], where=table[1]+' = '+registern)
-				self._stop(['home', registern, password, privilege])
+			if userInfo[0] == password:
+				self._stop(['home', email, privilege])
+			else:
+				raise ValueError('Invalid password')
 		except Exception as e:
 			print(e)
-			TkMessageBox.showinfo('Error', 'Invalid register nº or password')
-		finally:
-			pass
+			TkMessageBox.showinfo('Error', 'Invalid e-mail or password')
 
 	def __register(self, event=None):
-		registern = self.fields['Register nº'][1].get()
+		email = self.fields['E-mail'][1].get()
 		password = self.fields['Password'][1].get()
-		self._stop(['register', registern, password])
+		self._stop(['register', email, password])

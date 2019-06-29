@@ -1,15 +1,17 @@
 from threading import Thread
 from tkinter import *
 from tkinter import messagebox as TkMessageBox
-from PIL import Image
 from front.app import App
+from PIL import Image
+import io
+import base64
 
 class HomeScreen(App):
-	def __init__(self, registern, password, privilege, title='', icon=None, geometry=''):
+	def __init__(self, email, privilege, title='', icon=None, geometry=''):
 		self._init(title, icon, geometry)
-		self.registern = registern
-		self.password = password
+		self.email = email
 		self.privilege = privilege
+		self.username = self.db.get_users(get='nome', email=self.email)[0]
 		
 		# Frames
 		self.topbar = Frame(self.screenFrame, bd=5)
@@ -21,14 +23,11 @@ class HomeScreen(App):
 
 		# Foto de perfil
 		try:
-			imraw = Image.open('/tmp/profilepic')
-			imraw = imraw.resize((50,50), Image.NEAREST)
-			imraw.save('/tmp/temp.png')
+			image = base64.b64encode(self.db.get_users(get='foto', email=self.email)[0].tobytes())
+			image = PhotoImage(data=image)
 
-			im = PhotoImage(file='/tmp/temp.png')
-
-			self.profile = Label(self.topbar, image=im, background='white')
-			self.profile.im = im
+			self.profile = Label(self.topbar, image=image, background='white')
+			self.profile.image = image
 
 			self.profile.pack(side=LEFT)
 		except Exception as e:
@@ -37,7 +36,7 @@ class HomeScreen(App):
 			pass
 
 		# Nome do usuário
-		self.name = Label(self.topbar, text=registern, bd=5)
+		self.name = Label(self.topbar, text=self.username, bd=5)
 		self.name.pack(side=LEFT)
 
 		# Sair
@@ -80,22 +79,27 @@ class HomeScreen(App):
 	def __attempts(self, e=None):
 		pass
 	def __users(self, e=None):
-		self._stop(['users', self.registern, self.password, self.privilege])
+		self._stop(['users'])
 	def __change_password(self, e=None):
-		promptScreen = Toplevel()
-		promptScreen.grab_set()
+		self.promptScreen = Toplevel()
+		self.promptScreen.grab_set()
 		
-		entries = []
+		self.entries = []
 		for i,j in enumerate(['Old ','New ','Confirm new ']):
-			Label(promptScreen, text=j+'password: ').grid(row=i, column=0)
-			entries.append(Entry(promptScreen, show='*'))
-			entries[-1].grid(row=i, column=1)
-		Button(promptScreen, text='Change', command=lambda: ((self.db.execute('update ALUNO set senha = \''+entries[1].get()+'\' where nome = \''+self.registern+'\'; select senha from ALUNO where nome = \''+self.registern+'\'') or self.db.commit() or self.__change_password_() or promptScreen.destroy()) if entries[1].get() == entries[2].get() else TkMessageBox.showinfo('Error', 'Invalid password'))	if entries[0].get() == self.password 	else TkMessageBox.showinfo('Error', 'Wrong password')).grid()
+			Label(self.promptScreen, text=j+'password: ').grid(row=i, column=0)
+			self.entries.append(Entry(self.promptScreen, show='*'))
+			self.entries[-1].grid(row=i, column=1)
+			# TODO: aqui tem uma query
+		Button(self.promptScreen, text='Change', command=self.__change_password_).grid()
 		
 	def __change_password_(self):
-		print('Old pass: ', self.password)
-		self.password = (self.db.fetchone())[0]
-		print('New pass: ', self.password)
+		password = self.db.get_users(get='senha', email=self.email)[0]
+		if self.entries[1].get() == self.entries[2].get() and self.entries[0].get() == password:
+			if not self.db.change_password(self.email, self.entries[1].get()):
+				TkMessageBox.showinfo('Error', 'Failed. Try again later')
+		else:
+			TkMessageBox.showinfo('Error', 'Wrong password')
+		self.promptScreen.destroy()
 
 	def __review(self, e=None):
 		pass

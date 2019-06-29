@@ -6,8 +6,7 @@ class ManagementScreen(App):
 	def __init__(self, title='', icon=None, geometry=''):
 		self._init(title, icon, geometry)
 
-		self.db.select('*', 'DISCIPLINA')
-		for i,c in enumerate([('Code', 'Course')] + self.db.fetchall()):
+		for i,c in enumerate([('Code', 'Course')] + self.db.get_courses()):
 			Label(self.screenFrame, text=str(c[0]), bd=1).grid(row=i, column=0)
 			Label(self.screenFrame, text=c[1], bd=1).grid(row=i, column=1)
 			if i:
@@ -33,27 +32,30 @@ class ManagementScreen(App):
 		Button(self.promptScreen, text=buttonLabel, command=whichfun).grid()
 
 	def __create_course(self):
-		self._create(['Code','Name'], self.__create_course_)
+		self._create(['Name'], self.__create_course_)
 	def __create_course_(self):
 		try:
-			code, name = str(int(self.fields['Code'].get())), self.fields['Name'].get()
-			self.db.execute('insert into DISCIPLINA values ('+code+', \''+name+'\');')
+			name = self.fields['Name'].get()
+
+			self.db.insert_disciplina(name)
+
 			self.promptScreen.destroy()
+			self.screenFrame.grid_forget()
+			self.__init__(self.code, self.module_number, self.title, self.icon, self.geometry)
+			self._start()
 		except Exception as e:
 			print(e)
 			TkMessageBox.showinfo('Error', 'Invalid code!')
-		finally:
-			self.db.commit()
 
 	def __add_language(self):
 		self._create(['Name', 'Compile/Run with'], self.__add_language_)
 	def __add_language_(self):
 		try:
 			name, run = self.fields['Name'].get(), self.fields['Compile/Run with'].get()
-			self.db.insert('LING_PROGR', (name, run), columns='(nome, comand_compila)')
+
+			self.db.insert_language(name, run)
 			self.promptScreen.destroy()
 		except Exception as e:
 			print(e)
-		finally:
-			self.db.commit()
+			TkMessageBox.showinfo('Error', 'Failed!')
 
