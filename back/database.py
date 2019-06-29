@@ -1,7 +1,7 @@
 import psycopg2
 from psycopg2 import Error
 
-class CreateSchema():
+class CreateSchema:
 	__sqlStatement = """
 	CREATE TABLE IF NOT EXISTS PROFESSOR (
 		COD SERIAL NOT NULL PRIMARY KEY,
@@ -79,7 +79,7 @@ class CreateSchema():
 	);
 
 	CREATE TABLE IF NOT EXISTS LISTA (
-		COD INTEGER NOT NULL,
+		COD SERIAL NOT NULL,
 		DESCR BYTEA NOT NULL,
 		DATA_HR_INICIO TIMESTAMP,
 		DATA_HR_FIM TIMESTAMP,
