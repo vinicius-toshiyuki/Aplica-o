@@ -233,6 +233,9 @@ class Corretor(BD):
 		'codigo' : 'cod',
 		'matricula_do_monitor' : 'aluno_matr',
 		'numero' : 'numero',
+		'descrição' : 'descr',
+		'modulo' : 'modulo_cod',
+		'e' : lambda s: set(list(s) + list(s.pop('e'))),
 		'tudo' : '*'
 	}
 	def insert_aluno(self, **kwargs):
@@ -259,7 +262,15 @@ class Corretor(BD):
 	def __get(self, get='tudo', table=None, full=False, **kwargs):
 		# Criar umas views pra não deixar pegar senha e tal
 		if type(get) == str: get = [get]
-		tabelas = {'PROFESSOR', 'ALUNO', 'DISCIPLINA', 'MODULO'}
+		tabelas = {
+			'PROFESSOR',
+			'ALUNO',
+			'DISCIPLINA',
+			'MODULO',
+			'LINGUAGEM_DAS_DISCIPLINAS',
+			'LING_PROGR',
+			'LISTA'
+		}
 		if table != None:
 			tabelas = tabelas - (tabelas - table)
 
@@ -269,14 +280,17 @@ class Corretor(BD):
 		if not len(kwargs):
 			full = True
 			kwargs[None] = None
+		elif 'e' in kwargs:
+		 	kwargs = self.__alias['e'](kwargs)
 		if full:
 			res = []
+		resultados = ', '.join([(lambda g: self.__alias[g])(g) for g in get])
 		for t in tabelas:
 			for k in kwargs:
-				resultados = ', '.join([(lambda g: self.__alias[g])(g) for g in get])
-				where = ' where {} = %s;'.format(self.__alias[k]) if not full else ';'
+				where = ' where {} = %s;'.format(self.__alias[k]) if not full or list(kwargs.keys())[0] != None else ';'
 				query = 'select {} from {}'+where
 				query = query.format(resultados, t)
+				print(query)
 				try:
 					self.execute(query, (kwargs[k],))
 					if not full:
@@ -285,7 +299,7 @@ class Corretor(BD):
 							break
 					else:
 						aux = self.fetchall()
-						res += aux if aux else []
+						res += aux if len(aux) else []
 				except:
 					self.commit()
 			if res:
@@ -350,31 +364,55 @@ class Corretor(BD):
 		tabelas = {'MODULO'}
 		return self.__get(get=get, table=tabelas, full=full, **kwargs)
 
+	def get_work(self, get='tudo', full=True, **kwargs):
+		tabelas = {'LISTA'}
+		return self.__get(get=get, table=tabelas, full=full, **kwargs)
+
 	def insert_disciplina(self, name):
 		try:
-			self.db.execute('insert into DISCIPLINA (nome) values (%s);', (name,))
+			self.execute('insert into DISCIPLINA (nome) values (%s);', (name,))
 		except Exception as e:
 			print(e)
 			raise ValueError('Error in insert_disciplina')
 		finally:
-			self.db.commit()
+			self.commit()
 
 	def insert_language(self, name, compilation):
 		try:
-			self.db.execute('insert into LING_PROGR values(%s, %s);', (name, compilation))
+			self.execute('INSERT INTO LING_PROGR (NOME, COMAND_COMPILA) VALUES(%s, %s);', (name, compilation))
 		except Exception as e:
 			print(e)
 			raise ValueError('Error in insert_language')
 		finally:
-			self.db.commit()
+			self.commit()
 
 
-			"""
-	def get_linguagens(self, get='tudo', full=True, **kwargs):
-		tabelas = {'LING_PROGR'
-		self.db.select('nome', 'LING_PROGR_DISCI join LING_PROGR on LING_PROGR_COD = COD', where='disc_cod = '+str(self.code))
-			"""
+	def get_languages(self, get='tudo', full=True, **kwargs):
+		self.execute(
+				'CREATE OR REPLACE VIEW LINGUAGEM_DAS_DISCIPLINAS AS	(SELECT COD, NOME, COMAND_COMPILA, DISC_COD FROM LING_PROGR JOIN LING_PROGR_DISCI ON LING_PROGR_COD  = COD);'
+				)
+		tabelas = {'LINGUAGEM_DAS_DISCIPLINAS'}
+		return self.__get(get=get, table=tabelas, full=full, **kwargs)
 
+	def get_language_options(self, get='tudo', full=True, **kwargs):
+		return self.__get(get=get, table={'LING_PROGR'}, full=full, **kwargs)
+
+	def insert_module(self, number, course_code):
+		try:
+			self.execute('INSERT INTO MODULO VALUES (%s, %s);', (number, course_code))
+		except Exception as e:
+			print(e)
+			raise ValueError('Error in insert_module')
+		finally:
+			self.commit()
+
+	def choose_language(self, course_code, language_code):
+		try:
+			self.execute('INSERT INTO LING_PROGR_DISCI (SELECT {}, {} FROM LING_PROGR_DISCI WHERE (SELECT COUNT(*) FROM LING_PROGR_DISCI WHERE DISC_COD = {} AND LING_PROGR_COD = {}) = 0) LIMIT 1;'.format(language_code, course_code, course_code, language_code))
+		except Exception as e:
+			raise ValueError(e)
+		finally:
+			self.commit()
 
 
 

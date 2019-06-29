@@ -31,7 +31,7 @@ class HomeScreen(App):
 
 			self.profile.pack(side=LEFT)
 		except Exception as e:
-			print(e)
+			print('Could not open picture:', e)
 		finally:
 			pass
 

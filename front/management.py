@@ -41,7 +41,7 @@ class ManagementScreen(App):
 
 			self.promptScreen.destroy()
 			self.screenFrame.grid_forget()
-			self.__init__(self.code, self.module_number, self.title, self.icon, self.geometry)
+			self.__init__(self.title, self.icon, self.geometry)
 			self._start()
 		except Exception as e:
 			print(e)

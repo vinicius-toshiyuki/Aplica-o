@@ -8,6 +8,7 @@ class ModuleScreen(ManagementScreen):
 		self.code = code
 		self.module_number = module_number
 
+		print('Aqui:',self.db.get_work(get=['codigo','descrição'], e={'disciplina':self.code, 'modulo':self.module_number}))
 		self.db.select('cod, descr', 'LISTA', where='disc_cod = '+str(self.code)+' and modulo_cod = '+str(self.module_number))
 		for i,c in enumerate([('Work code','Description')] + self.db.fetchall()):
 			Label(self.screenFrame, text=str(c[0]), bd=1).grid(row=i, column=0)
