@@ -25,11 +25,19 @@ class ManagementScreen(App):
 	def _create(self, fieldsNames, whichfun, buttonLabel='Create'):
 		self.promptScreen = Toplevel(self.window)
 		self.promptScreen.grab_set()
-		self.fields = dict((lambda f: (f, Entry(self.promptScreen)))(f) for f in fieldsNames)
+		self.fields = self.__fields(fieldsNames)
 		for i,key in enumerate(self.fields):
 			Label(self.promptScreen, text=key).grid(row=i, column=0)
-			self.fields[key].grid(row=i, column=1)
+			self.fields[key].grid(row=i, column=1, sticky=W)
 		Button(self.promptScreen, text=buttonLabel, command=whichfun).grid()
+	def __fields(self, fieldsNames):
+		fields = {}
+		for f in fieldsNames:
+			if type(f) == str:
+				fields[f] = Entry(self.promptScreen)
+			else:
+				fields[f[0]] = f[1](self.promptScreen, **f[2])
+		return fields
 
 	def __create_course(self):
 		self._create(['Name'], self.__create_course_)

@@ -234,8 +234,21 @@ class Corretor(BD):
 		'matricula_do_monitor' : 'aluno_matr',
 		'numero' : 'numero',
 		'descrição' : 'descr',
+		'descricao' : 'descr',
 		'modulo' : 'modulo_cod',
-		'e' : lambda s: set(list(s) + list(s.pop('e'))),
+		'inicio' : 'data_hr_inicio',
+		'fim' : 'data_hr_fim',
+		'visibilidade' : 'visibilidade',
+		'description' : 'descr',
+		'begin' : 'data_hr_inicio',
+		'end' : 'data_hr_fim',
+		'number' : 'numero',
+		'prova' : 'prova',
+		'dificuldade' : 'dificul',
+		'titulo' : 'titulo',
+		'lista' : 'lista_cod',
+		'limite_de_memoria' : 'limite_mem',
+		'limite_de_tempo' : 'limite_temp',
 		'tudo' : '*'
 	}
 	def insert_aluno(self, **kwargs):
@@ -258,6 +271,41 @@ class Corretor(BD):
 			f.close()
 			self.commit()
 
+	def insert_work(self, **kwargs):
+		f = open(kwargs['Description'], 'rb')
+		fbytes = f.read()
+		kwargs['Description'] = fbytes
+
+		try:
+			colunas = []
+			for k in kwargs: colunas.append(self.__alias[k.lower()])
+			colunas = ', '.join(colunas)
+			valores = ', '.join(['%s'] * len(kwargs))
+
+			query = 'insert into LISTA ({}) values ({});'.format(colunas, valores)
+			self.execute(query, list(kwargs.values()))
+		except Exception as e:
+			print(e)
+			raise ValueError('Invalid data in insert_work')
+		finally:
+			f.close()
+			self.commit()
+			
+	def insert_problem(self, **kwargs):
+		try:
+			colunas = []
+			for k in kwargs: colunas.append(self.__alias[k.lower()])
+			colunas = ', '.join(colunas)
+			valores = ', '.join(['%s'] * len(kwargs))
+
+			query = 'insert into PROBLEMA ({}) values ({});'.format(colunas, valores)
+			self.execute(query, list(kwargs.values()))
+		except Exception as e:
+			print(e)
+			raise ValueError('Invalid data in insert_problem')
+		finally:
+			self.commit()
+
 	# kwargs é o que vai ser usado pra buscar
 	def __get(self, get='tudo', table=None, full=False, **kwargs):
 		# Criar umas views pra não deixar pegar senha e tal
@@ -269,7 +317,8 @@ class Corretor(BD):
 			'MODULO',
 			'LINGUAGEM_DAS_DISCIPLINAS',
 			'LING_PROGR',
-			'LISTA'
+			'LISTA',
+			'PROBLEMA'
 		}
 		if table != None:
 			tabelas = tabelas - (tabelas - table)
@@ -280,14 +329,17 @@ class Corretor(BD):
 		if not len(kwargs):
 			full = True
 			kwargs[None] = None
-		elif 'e' in kwargs:
-		 	kwargs = self.__alias['e'](kwargs)
 		if full:
 			res = []
 		resultados = ', '.join([(lambda g: self.__alias[g])(g) for g in get])
 		for t in tabelas:
 			for k in kwargs:
-				where = ' where {} = %s;'.format(self.__alias[k]) if not full or list(kwargs.keys())[0] != None else ';'
+				if k in self.__alias:
+					where = ' where {} = %s;'.format(self.__alias[k])
+				elif not full or list(kwargs.keys())[0] != None:
+					where = ' where {};'.format(kwargs[k])
+				else:
+					where = ';'
 				query = 'select {} from {}'+where
 				query = query.format(resultados, t)
 				print(query)
@@ -366,6 +418,14 @@ class Corretor(BD):
 
 	def get_work(self, get='tudo', full=True, **kwargs):
 		tabelas = {'LISTA'}
+		where = []
+		for k in kwargs:
+			where.append('{} = {}'.format(self.__alias[k], kwargs[k]))
+		where = ' and '.join(where)
+		return self.__get(get=get, table=tabelas, full=full, where=where)
+
+	def get_problem(self, get='tudo', full=True, **kwargs):
+		tabelas = {'PROBLEMA'}
 		return self.__get(get=get, table=tabelas, full=full, **kwargs)
 
 	def insert_disciplina(self, name):
@@ -385,7 +445,6 @@ class Corretor(BD):
 			raise ValueError('Error in insert_language')
 		finally:
 			self.commit()
-
 
 	def get_languages(self, get='tudo', full=True, **kwargs):
 		self.execute(
