@@ -473,6 +473,39 @@ class Corretor(BD):
 		finally:
 			self.commit()
 
+	def toggle_visibilitiy(self, course_code, module_number, work_code):
+		return self.__toggle(course_code, module_number, work_code, 'VISIBILIDADE')
+
+	def toggle_contest(self, course_code, module_number, work_code):
+		return self.__toggle(course_code, module_number, work_code, 'PROVA')
+
+	def __toggle(self, course_code, module_number, work_code, table):
+		ret = False
+		try:
+			self.execute(
+					'UPDATE LISTA SET {} = TOGGLE_{}(%s, %s, %s) WHERE DISC_COD = %s AND MODULO_COD = %s AND COD = %s;'.format(table, table),
+					(course_code, module_number, work_code, course_code, module_number, work_code)
+					)
+			self.execute(
+					'SELECT {} FROM LISTA WHERE DISC_COD = %s AND MODULO_COD = %s AND COD = %s;'.format(table),
+					(course_code, module_number, work_code)
+					)
+			ret = True if self.fetchone()[0] == 'S' else False
+		except Exception as e:
+			raise ValueError(e)
+		finally:
+			self.commit()
+		return ret
+
+
+
+
+
+
+
+
+
+
 
 
 

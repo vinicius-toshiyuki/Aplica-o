@@ -33,17 +33,6 @@ class WorkScreen(ManagementScreen):
 		self._create(['Number','Title','Description','Dificulty','Memory limit','Time limit'], self.__create_problem_)
 	def __create_problem_(self):
 		try:
-			'''
-			COD           INTEGER          NOT   NULL,
-			LISTA_COD     INTEGER          NOT   NULL,
-			MODULO_COD    INTEGER          NOT   NULL,
-			DISC_COD      INTEGER          NOT   NULL,
-			TITULO        VARCHAR(300),
-			DESCR         VARCHAR(4000),
-			DIFICUL       VARCHAR(50),
-			LIMITE_MEM    VARCHAR(500),
-			LIMITE_TEMP   VARCHAR(500),
-			'''
 			number = self.fields['Number'].get()
 			title = self.fields['Title'].get()
 			description = self.fields['Description'].get()
@@ -69,32 +58,22 @@ class WorkScreen(ManagementScreen):
 		except Exception as e:
 			print(e)
 			TkMessageBox.showinfo('Error', 'Wrong input')
-		finally:
-			self.db.commit()
 
 	def __change_visibility(self):
 		try:
-			self.db.toggle_visibilitiy(self.code, self.module_number, self.work_code)
-			self.db.select('visibilidade', 'LISTA', where='cod = '+str(self.work_code))
-			visibility = "'S'" if self.db.fetchone()[0] == 'N' else "'N'"
-			self.db.execute('update LISTA set visibilidade = '+visibility+' where cod = '+str(self.work_code))
-			TkMessageBox.showinfo('Success', 'Updated work; now it is '+('visible' if visibility == "'S'" else 'not visible'))
+			vis = self.db.toggle_visibilitiy(self.code, self.module_number, self.work_code)
+			TkMessageBox.showinfo('Success', 'Updated work; now it is '+('visible' if vis else 'not visible'))
 		except Exception as e:
 			print(e)
 			TkMessageBox.showinfo('Error', 'Error')
-		finally:
-			self.db.commit()
 	
 	def __change_to_contest(self):
 		try:
-			self.db.select('prova', 'LISTA', where='cod = '+str(self.work_code))
-			prova = "'S'" if self.db.fetchone()[0] == 'N' else "'N'"
-			self.db.execute('update LISTA set prova = '+prova+' where cod = '+str(self.work_code))
-			TkMessageBox.showinfo('Success', 'Updated work; now it is a '+('contest' if prova == "'S'" else 'commom work'))
+			pro = self.db.toggle_contest(self.code, self.module_number, self.work_code)
+			TkMessageBox.showinfo('Success', 'Updated work; now it is a '+('contest' if pro else 'commom work'))
 		except Exception as e:
 			print(e)
-		finally:
-			self.db.commit()
+			TkMessageBox.showinfo('Error', 'Error')
 
 	def __manage_problem(self, problem_code):
 		print(problem_code)

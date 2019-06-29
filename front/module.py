@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox as TkMessageBox
 from front.management import ManagementScreen
 from tkinter import filedialog
+import os
 
 class ModuleScreen(ManagementScreen):
 	def __init__(self, code, module_number, title='', icon=None, geometry=''):
@@ -11,8 +12,10 @@ class ModuleScreen(ManagementScreen):
 
 		for i,c in enumerate([('Work code','Description')] + self.db.get_work(get=['codigo','descrição'], disciplina=self.code, modulo=self.module_number)):
 			Label(self.screenFrame, text=str(c[0]), bd=1).grid(row=i, column=0)
-			Label(self.screenFrame, text=str(c[1]), bd=1).grid(row=i, column=1)
-			if i:
+			if not i:
+				Label(self.screenFrame, text=str(c[1]), bd=1).grid(row=i, column=1)
+			else:
+				Button(self.screenFrame, text='Get file', padx=1, command=lambda f=c[1]: self.__show_file(f)).grid(row=i, column=1)
 				callback = lambda work_code=c[0]: self._stop(['work', self.code, self.module_number, work_code])
 				Button(self.screenFrame, text='Manage', padx=1, command=callback).grid(row=i, column=2)
 
@@ -23,6 +26,17 @@ class ModuleScreen(ManagementScreen):
 			)
 		for b in buttons:
 			Button(self.screenFrame, text=b[0], command=b[1]).grid(sticky=W)
+
+	def __show_file(self, filebytes):
+		try:
+			file = open('./tmp/work', 'wb')
+			file.write(filebytes)
+			file.close()
+			os.system('xdg-open ./tmp/work')
+		except Exception as e:
+			print(e)
+			TkMessageBox.showinfo('Error', 'Unable to open file')
+
 
 	def __create_work(self):
 		self._create(('Number', ('Description', Button, dict(text='Choose file', command=self.__browse_work)),'Begin', 'End'), self.__create_work_)
