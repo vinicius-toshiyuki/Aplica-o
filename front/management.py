@@ -18,7 +18,7 @@ class ManagementScreen(App):
 		buttons = (
 			('Back', self._back),
 			('Create course', self.__create_course),
-			('Manage course', self.__manage_course)
+			('Add language', self.__add_language)
 			)
 		for b in buttons:
 			Button(self.screenFrame, text=b[0], command=b[1]).grid(sticky=W)
@@ -44,7 +44,16 @@ class ManagementScreen(App):
 			TkMessageBox.showinfo('Error', 'Invalid code!')
 		finally:
 			self.db.commit()
-			pass
-	
-	def __manage_course(self):
-		pass
+
+	def __add_language(self):
+		self._create(['Name', 'Compile/Run with'], self.__add_language_)
+	def __add_language_(self):
+		try:
+			name, run = self.fields['Name'].get(), self.fields['Compile/Run with'].get()
+			self.db.insert('LING_PROGR', (name, run), columns='(nome, comand_compila)')
+			self.promptScreen.destroy()
+		except Exception as e:
+			print(e)
+		finally:
+			self.db.commit()
+

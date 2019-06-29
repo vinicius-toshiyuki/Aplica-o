@@ -74,7 +74,7 @@ class HomeScreen(App):
 				self.buttonsAdmin[b[0]].grid(row=0, column=i)
 
 	def __contests(self, e=None):
-		pass
+		self._stop(['contests', self.privilege])
 	def __problems(self, e=None):
 		self._stop(['problems', self.privilege])
 	def __attempts(self, e=None):

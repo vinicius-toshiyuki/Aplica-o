@@ -8,6 +8,7 @@ from front.management import ManagementScreen
 from front.course import CourseScreen
 from front.module import ModuleScreen
 from front.work import WorkScreen
+from front.contests import ContestsScreen
 
 def main():
     app = App(icon='índice.gif', title='Corretor')
@@ -20,6 +21,7 @@ def main():
     app.add_handler('course', CourseScreen)
     app.add_handler('module', ModuleScreen)
     app.add_handler('work', WorkScreen)
+    app.add_handler('contests', ContestsScreen)
     app.add_handler('logout', app.handler[None])
     app.window_start()
 

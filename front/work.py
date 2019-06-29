@@ -11,13 +11,13 @@ class WorkScreen(ManagementScreen):
 
 		self.db.select('cod, titulo, descr, dificul', 'PROBLEMA', where='lista_cod = '+str(self.work_code))
 		for i,c in enumerate([('Problem code', 'Title', 'Description', 'Dificulty')] + self.db.fetchall()):
-			Label(self.screenFrame, text=str(c[0]), bd=1).grid(row=i, column=0)
-			Label(self.screenFrame, text=str(c[1]), bd=1).grid(row=i, column=1)
-			Label(self.screenFrame, text=str(c[2]), bd=1).grid(row=i, column=2)
-			Label(self.screenFrame, text=str(c[3]), bd=1).grid(row=i, column=3)
+			Label(self.screenFrame, text=str(c[0]), bd=7).grid(row=i, column=0)
+			Label(self.screenFrame, text=str(c[1]), bd=7).grid(row=i, column=1)
+			Label(self.screenFrame, text=str(c[2]), bd=7).grid(row=i, column=2)
+			Label(self.screenFrame, text=str(c[3]), bd=7).grid(row=i, column=3)
 			if i:
 				callback = lambda problem_code=c[0]: self.__manage_problem(problem_code)
-				Button(self.screenFrame, text='Manage', padx=1, command=callback).grid(row=i, column=4)
+				Button(self.screenFrame, text='Manage', padx=7, command=callback).grid(row=i, column=4)
 
 		# Cria botão
 		buttons = (
@@ -46,10 +46,27 @@ class WorkScreen(ManagementScreen):
 			self.db.commit()
 
 	def __change_visibility(self):
-		pass
+		try:
+			self.db.select('visibilidade', 'LISTA', where='cod = '+str(self.work_code))
+			visibility = "'S'" if self.db.fetchone()[0] == 'N' else "'N'"
+			self.db.execute('update LISTA set visibilidade = '+visibility+' where cod = '+str(self.work_code))
+			TkMessageBox.showinfo('Success', 'Updated work; now it is '+('visible' if visibility == "'S'" else 'not visible'))
+		except Exception as e:
+			print(e)
+			TkMessageBox.showinfo('Error', 'Error')
+		finally:
+			self.db.commit()
 	
 	def __change_to_contest(self):
-		pass
+		try:
+			self.db.select('prova', 'LISTA', where='cod = '+str(self.work_code))
+			prova = "'S'" if self.db.fetchone()[0] == 'N' else "'N'"
+			self.db.execute('update LISTA set prova = '+prova+' where cod = '+str(self.work_code))
+			TkMessageBox.showinfo('Success', 'Updated work; now it is a '+('contest' if prova == "'S'" else 'commom work'))
+		except Exception as e:
+			print(e)
+		finally:
+			self.db.commit()
 
 	def __manage_problem(self, problem_code):
 		print(problem_code)
