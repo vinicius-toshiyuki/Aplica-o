@@ -18,7 +18,7 @@ class App:
 		self.icon = icon
 		self.geometry = geometry
 
-		self.db.connect(database='test')
+		self.db.connect(database='corretor')
 
 		self.window.resizable(0, 0)
 		# Cria handler para retornos

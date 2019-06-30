@@ -40,15 +40,18 @@ class CourseScreen(ManagementScreen):
 			TkMessageBox.showinfo('Error', 'Module already exists!')
 
 	def __choose_language(self):
-		promptScreen = Toplevel(self.window)
-		promptScreen.grab_set()
+		options = [(lambda l: '{} - {}'.format(str(l[1]), l[0]))(l) for l in self.db.get_language_options(get=['nome','codigo'])]
+		print(options)
+		if not len(options):
+			TkMessageBox.showinfo('Error', 'No languages registered')
+		else:
+			promptScreen = Toplevel(self.window)
+			promptScreen.grab_set()
 
-		options = [(lambda l: str(l[1])+' - '+l[0])(l) for l in self.db.get_language_options(get=['nome','codigo'])]
-
-		default = StringVar(promptScreen)
-		default.set('')
-		OptionMenu(promptScreen, default, *options).grid(sticky=W)
-		Button(promptScreen, text='Choose', command=lambda selected=default: self.__choose_language_(selected.get().split('-')[0])).grid(sticky=W)
+			default = StringVar(promptScreen)
+			default.set(options[0])
+			OptionMenu(promptScreen, default, *options).grid(sticky=W)
+			Button(promptScreen, text='Choose', command=lambda selected=default: self.__choose_language_(selected.get().split('-')[0])).grid(sticky=W)
 
 	def __choose_language_(self, language_code):
 		try:
@@ -60,5 +63,5 @@ class CourseScreen(ManagementScreen):
 			self._start()
 		except Exception as e:
 			print(e)
-			TkMessageBox.showinfo('Erro', 'Select a language')
+			TkMessageBox.showinfo('Error', 'Select a language')
 

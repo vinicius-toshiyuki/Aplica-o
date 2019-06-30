@@ -475,7 +475,7 @@ class Corretor(BD):
 
 	def choose_language(self, course_code, language_code):
 		try:
-			self.execute('INSERT INTO LING_PROGR_DISCI (SELECT {}, {} FROM LING_PROGR_DISCI WHERE (SELECT COUNT(*) FROM LING_PROGR_DISCI WHERE DISC_COD = {} AND LING_PROGR_COD = {}) = 0) LIMIT 1;'.format(language_code, course_code, course_code, language_code))
+			self.execute('INSERT INTO LING_PROGR_DISCI (SELECT {}, {} FROM (SELECT 1,1) NADA WHERE (SELECT COUNT(*) FROM LING_PROGR_DISCI WHERE DISC_COD = {} AND LING_PROGR_COD = {}) = 0) LIMIT 1;'.format(language_code, course_code, course_code, language_code))
 		except Exception as e:
 			raise ValueError(e)
 		finally:

@@ -3,6 +3,8 @@ from tkinter import messagebox as TkMessageBox
 from front.management import ManagementScreen
 from tkinter import filedialog
 import os
+import platform
+import subprocess
 
 class ModuleScreen(ManagementScreen):
 	def __init__(self, code, module_number, title='', icon=None, geometry=''):
@@ -29,10 +31,16 @@ class ModuleScreen(ManagementScreen):
 
 	def __show_file(self, filebytes):
 		try:
-			file = open('./tmp/work', 'wb')
+			path = './tmp/work'
+			file = open(path, 'wb')
 			file.write(filebytes)
 			file.close()
-			os.system('xdg-open ./tmp/work')
+			if platform.system() == 'Darwin': # MacOS
+				subprocess.call(('open', path))
+			elif platform.system() == 'Windows':
+				os.startfile(filepath)
+			else:
+				subprocess.call(('xdg-open', path))
 		except Exception as e:
 			print(e)
 			TkMessageBox.showinfo('Error', 'Unable to open file')

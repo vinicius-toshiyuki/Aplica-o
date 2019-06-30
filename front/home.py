@@ -77,7 +77,7 @@ class HomeScreen(App):
 	def __problems(self, e=None):
 		self._stop(['problems', self.email, self.privilege])
 	def __attempts(self, e=None):
-		pass
+		self._stop(['attempts', self.email])
 	def __users(self, e=None):
 		self._stop(['users'])
 	def __change_password(self, e=None):
