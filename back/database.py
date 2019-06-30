@@ -132,7 +132,7 @@ class Corretor(BD):
 		finally:
 			f.close()
 			self.commit()
-			self.close()
+			# self.close()
 
 	def insert_work(self, **kwargs):
 		f = open(kwargs['Description'], 'rb')
