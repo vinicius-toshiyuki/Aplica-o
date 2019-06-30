@@ -1,4 +1,6 @@
 import psycopg2
+import back.entidades
+from back.entidades import *
 from psycopg2 import Error
 
 class BD:
@@ -112,6 +114,22 @@ class Corretor(BD):
 			f.close()
 			self.commit()
 
+	def get_professor(self, cod):
+		try:
+			query = "SELECT * FROM PROFESSOR WHERE cod = %s;"
+			self.connect(database='corretor')
+			self.execute(query, (cod,))
+			prof_dados = self.fetchall()[0]
+			professor = Professor(prof_dados[0],prof_dados[1],prof_dados[2],prof_dados[3],
+								  prof_dados[4],prof_dados[5],prof_dados[6])
+		except Exception as e:
+			print(e)
+			raise ValueError('Invalid data in get_professor')
+		finally:
+			self.commit()
+			self.close()
+			return professor
+
 	def insert_professor(self, **kwargs):
 		f = open(kwargs['foto'], 'rb')
 		foto = f.read()
@@ -123,14 +141,58 @@ class Corretor(BD):
 			colunas = ', '.join(colunas)
 			valores = ', '.join(['%s'] * len(kwargs))
 
-			query = 'insert into PROFESSOR ({}) values ({});'.format(colunas, valores)
-			# self.connect(database='corretor')
+			query = 'insert into PROFESSOR ({}) values ({}) returning Cod;'.format(colunas, valores)
+			self.connect(database='corretor')
 			self.execute(query, list(kwargs.values()))
+			cod = self.fetchone()[0]
+			return cod
 		except Exception as e:
 			print(e)
 			raise ValueError('Invalid data in insert_professor')
 		finally:
 			f.close()
+			self.commit()
+			self.close()
+
+	def update_professor(self, cod, nome, email, senha, foto, data_de_nascimento):
+		f = open(foto, 'rb')
+		foto_arq = f.read()
+
+		try:
+			query = 'UPDATE PROFESSOR SET Nome=%s,Email=%s,Senha=%s,Foto=%s,Data_Nasc=%s WHERE Cod=%s;'
+			self.connect(database='corretor')
+			self.execute(query, (nome, email, senha, foto_arq, data_de_nascimento, cod))
+		except Exception as e:
+			print(e)
+			raise ValueError('Invalid data in update_professor')
+		finally:
+			f.close()
+			self.commit()
+			self.close()
+
+	def delete_professor(self, Cod):
+		try:
+			query = "DELETE FROM PROFESSOR WHERE cod = %s"
+			self.connect(database='corretor')
+			self.execute(query, (Cod,))
+		except Exception as e:
+			print(e)
+			raise ValueError('Invalid data in delete_professor')
+		finally:
+			self.commit()
+			self.close()
+
+	def get_professor_cod(self, email):
+		try:
+			query = "SELECT cod FROM PROFESSOR WHERE email = %s"
+			self.connect(database='corretor')
+			self.execute(query, (email,))
+			cod = self.fetchone()[0]
+			return cod
+		except Exception as e:
+			print(e)
+			raise ValueError('Invalid data in get_professor_cod')
+		finally:
 			self.commit()
 			self.close()
 
@@ -389,15 +451,29 @@ class Corretor(BD):
 		finally:
 			file.close()
 
-
-
-
-
 class ProfessorBD(Corretor):
 	def __init__(self):
 		super(ProfessorBD, self).__init__()
 
+	def _getProfessor(self, cod):
+		professor = self.get_professor(cod)
+		return professor
+
+
 	def _insertProfessor(self, Professor=None):
-		self.insert_professor(nome=Professor.get_nome(), email=Professor.get_email(),
+		cod = self.insert_professor(nome=Professor.get_nome(), email=Professor.get_email(),
                             	senha=Professor.get_senha(), foto=Professor.get_foto(),
 								data_de_nascimento=Professor.get_dataNascimento())
+		return cod
+
+	def _updateProfessor(self, Professor=None):
+		self.update_professor(cod=Professor.get_professor_cod(), nome=Professor.get_nome(), email=Professor.get_email(),
+                            	senha=Professor.get_senha(), foto=Professor.get_foto(),
+								data_de_nascimento=Professor.get_dataNascimento())
+
+	def _deleteProfessor(self, cod):
+		self.delete_professor(cod)
+
+	def _getProfessorCod(self, email):
+		cod = self.get_professor_cod(email)
+		return cod
