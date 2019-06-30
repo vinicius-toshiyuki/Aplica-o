@@ -9,7 +9,7 @@ class WorkScreen(ManagementScreen):
 		self.module_number = module_number
 		self.work_code = work_code
 
-		res = self.db.get_problem(get=['codigo','titulo','descrição','dificuldade'], lista=self.work_code)
+		res = self.db.get_problem(get=['codigo','titulo','descrição','dificuldade'], lista=self.work_code, modulo=self.module_number, disciplina=self.code)
 		for i,c in enumerate([('Problem code', 'Title', 'Description', 'Dificulty')] + res): #self.db.fetchall()):
 			Label(self.screenFrame, text=str(c[0]), bd=7).grid(row=i, column=0)
 			Label(self.screenFrame, text=str(c[1]), bd=7).grid(row=i, column=1)
@@ -76,18 +76,53 @@ class WorkScreen(ManagementScreen):
 			TkMessageBox.showinfo('Error', 'Error')
 
 	def __manage_problem(self, problem_code):
-		print(problem_code)
 		promptScreen = Toplevel(self.window)
 		promptScreen.grab_set()
 
-		Button(promptScreen, text='Delete', command=lambda pcode=problem_code: self.__delete(pcode)).grid()
-		Button(promptScreen, text='Update', command=lambda pcode=problem_code: self.__update(pcode)).grid()
-		Button(promptScreen, text='End... Please...', command=promptScreen.destroy).grid()
+		Button(promptScreen, text='Delete', command=lambda pcode=problem_code: self.__delete(pcode)).grid(sticky=W)
+		Button(promptScreen, text='Add test files', command=lambda pcode=problem_code: self.__add_files(pcode)).grid(sticky=W)
+		Button(promptScreen, text='End... Please...', command=promptScreen.destroy).grid(sticky=W)
 
 	def __delete(self, problem_code):
-		pass
-	def __update(self, problem_code):
-		pass
+		try:
+			self.db.delete_problem(self.code, self.module_number, self.work_code, problem_code)
+			self.screenFrame.grid_forget()
+			self.__init__(self.code, self.module_number, self.work_code, self.title, self.icon, self.geometry)
+			self._start()
+		except Exception as e:
+			print(e)
+			TkMessageBox.showinfo('Erro', 'Failed!')
+
+	def __add_files(self, problem_code):
+		try:
+			self.__add(problem_code, 'ENTRADA', 'input')
+			self.__add(problem_code, 'SAIDA', 'output')
+			self.db.commit()
+		except Exception as e:
+			print(e)
+			TkMessageBox('Error', 'Failed!')
+
+	def __add(self, problem_code, table, kind):
+		file = filedialog.askopenfile(
+				parent=self.screenFrame,
+				filetypes=(('All files', '*.*'),),
+				title='Choose {} file'.format(kind)
+				)
+		try:
+			kwargs = dict(
+					tabela=table,
+					arquivo=file.name,
+					disciplina=self.code,
+					modulo=self.module_number,
+					lista=self.work_code,
+					problema=problem_code
+					)
+			self.db.insert_file(**kwargs)
+			self.db.commit()
+			TkMessageBox.showinfo('Success', '{} file submitted'.format(kind.capitalize()))
+		except Exception as e:
+			print(e)
+			TkMessageBox.showinfo('Error', 'Failed!')
 	
 
 

@@ -221,35 +221,42 @@ class BD:
 
 class Corretor(BD):
 	__alias = {
-		'matricula' : 'matricula',
-		'nome' : 'nome',
-		'email' : 'email',
-		'senha' : 'senha',
-		'foto' : 'foto',
-		'data_de_nascimento' : 'data_nasc',
-		'data_de_cadastro' : 'data_cadr',
-		'turma' : 'turma_cod',
-		'disciplina' : 'disc_cod',
-		'codigo' : 'cod',
+		'matricula'            : 'matricula',
+		'nome'                 : 'nome',
+		'email'                : 'email',
+		'senha'                : 'senha',
+		'foto'                 : 'foto',
+		'data_de_nascimento'   : 'data_nasc',
+		'data_de_cadastro'     : 'data_cadr',
+		'turma'                : 'turma_cod',
+		'disciplina'           : 'disc_cod',
+		'codigo'               : 'cod',
 		'matricula_do_monitor' : 'aluno_matr',
-		'numero' : 'numero',
-		'descrição' : 'descr',
-		'descricao' : 'descr',
-		'modulo' : 'modulo_cod',
-		'inicio' : 'data_hr_inicio',
-		'fim' : 'data_hr_fim',
-		'visibilidade' : 'visibilidade',
-		'description' : 'descr',
-		'begin' : 'data_hr_inicio',
-		'end' : 'data_hr_fim',
-		'number' : 'numero',
-		'prova' : 'prova',
-		'dificuldade' : 'dificul',
-		'titulo' : 'titulo',
-		'lista' : 'lista_cod',
-		'limite_de_memoria' : 'limite_mem',
-		'limite_de_tempo' : 'limite_temp',
-		'tudo' : '*'
+		'numero'               : 'numero',
+		'descrição'            : 'descr',
+		'descricao'            : 'descr',
+		'modulo'               : 'modulo_cod',
+		'inicio'               : 'data_hr_inicio',
+		'fim'                  : 'data_hr_fim',
+		'visibilidade'         : 'visibilidade',
+		'description'          : 'descr',
+		'begin'                : 'data_hr_inicio',
+		'end'                  : 'data_hr_fim',
+		'number'               : 'numero',
+		'prova'                : 'prova',
+		'dificuldade'          : 'dificul',
+		'titulo'               : 'titulo',
+		'lista'                : 'lista_cod',
+		'limite_de_memoria'    : 'limite_mem',
+		'limite_de_tempo'      : 'limite_temp',
+		'arquivo'              : 'arquivo',
+		'tempo'                : 'tempo_exec',
+		'memoria'              : 'mem_utili',
+		'veredito'             : 'veredito',
+		'aluno'                : 'aluno_matr',
+		'linguagem'            : 'ling_progr_cod',
+		'problema'             : 'problema_cod',
+		'tudo'                 : '*'
 	}
 	def insert_aluno(self, **kwargs):
 		f = open(kwargs['foto'], 'rb')
@@ -318,7 +325,8 @@ class Corretor(BD):
 			'LINGUAGEM_DAS_DISCIPLINAS',
 			'LING_PROGR',
 			'LISTA',
-			'PROBLEMA'
+			'PROBLEMA',
+			'PROBLEMAS_COMPLETOS'
 		}
 		if table != None:
 			tabelas = tabelas - (tabelas - table)
@@ -336,13 +344,12 @@ class Corretor(BD):
 			for k in kwargs:
 				if k in self.__alias:
 					where = ' where {} = %s;'.format(self.__alias[k])
-				elif not full or list(kwargs.keys())[0] != None:
+				elif kwargs[k] != '' and (not full or list(kwargs.keys())[0] != None):
 					where = ' where {};'.format(kwargs[k])
 				else:
 					where = ';'
 				query = 'select {} from {}'+where
 				query = query.format(resultados, t)
-				print(query)
 				try:
 					self.execute(query, (kwargs[k],))
 					if not full:
@@ -354,7 +361,7 @@ class Corretor(BD):
 						res += aux if len(aux) else []
 				except:
 					self.commit()
-			if res:
+			if res and not full:
 				break
 		return res
 
@@ -425,8 +432,12 @@ class Corretor(BD):
 		return self.__get(get=get, table=tabelas, full=full, where=where)
 
 	def get_problem(self, get='tudo', full=True, **kwargs):
-		tabelas = {'PROBLEMA'}
-		return self.__get(get=get, table=tabelas, full=full, **kwargs)
+		tabelas = {'PROBLEMAS_COMPLETOS'}
+		where = []
+		for k in kwargs:
+			where.append('{} = {}'.format(self.__alias[k], kwargs[k]))
+		where = ' and '.join(where)
+		return self.__get(get=get, table=tabelas, full=full, where=where)
 
 	def insert_disciplina(self, name):
 		try:
@@ -447,9 +458,6 @@ class Corretor(BD):
 			self.commit()
 
 	def get_languages(self, get='tudo', full=True, **kwargs):
-		self.execute(
-				'CREATE OR REPLACE VIEW LINGUAGEM_DAS_DISCIPLINAS AS	(SELECT COD, NOME, COMAND_COMPILA, DISC_COD FROM LING_PROGR JOIN LING_PROGR_DISCI ON LING_PROGR_COD  = COD);'
-				)
 		tabelas = {'LINGUAGEM_DAS_DISCIPLINAS'}
 		return self.__get(get=get, table=tabelas, full=full, **kwargs)
 
@@ -496,6 +504,34 @@ class Corretor(BD):
 		finally:
 			self.commit()
 		return ret
+	
+	def delete_problem(self, course_code, module_number, work_code, problem_code):
+		try:
+			self.execute(
+					'DELETE FROM PROBLEMA WHERE DISC_COD = %s AND MODULO_COD = %s AND LISTA_COD = %s AND COD = %s;',
+					(course_code, module_number, work_code, problem_code)
+					)
+		except Exception as e:
+			print(e)
+			raise ValueError('Can not delete a problem with a submission')
+		finally:
+			self.commit()
+
+	def insert_file(self, **kwargs):
+		try:
+			file = open(kwargs['arquivo'], 'rb')
+			kwargs['arquivo'] = file.read()
+
+			tabela = kwargs.pop('tabela')
+			colunas = ', '.join([(lambda k: self.__alias[k])(k) for k in kwargs])
+			valores = ', '.join(['%s'] * len(kwargs))
+			query = 'insert into {} ({}) values ({});'.format(tabela, colunas, valores)
+			self.execute(query, list(kwargs.values()))
+		except Exception as e:
+			self.commit()
+			raise ValueError(e)
+		finally:
+			file.close()
 
 
 
