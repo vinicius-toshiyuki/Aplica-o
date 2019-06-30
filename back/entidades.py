@@ -1,4 +1,5 @@
 class Professor:
+    __cod_professor= -1
     __nome = ""
     __email = ""
     __senha = ""
@@ -6,13 +7,20 @@ class Professor:
     __dataNascimento = ""
     __dataCadastro = ""
 
-    def __init__(self, nome="", email="", senha="", foto="", dataNascimento="", dataCadastro=""):
+    def __init__(self, professor_cod=-1, nome="", email="", senha="", foto="", dataNascimento="", dataCadastro=""):
+        self.set_professor_cod(professor_cod)
         self.set_nome(nome)
         self.set_email(email)
         self.set_senha(senha)
         self.set_foto(foto)
         self.set_dataNascimento(dataNascimento)
         self.set_dataCadastro(dataCadastro)
+
+    def get_professor_cod(self):
+        return self.__professor_cod
+
+    def set_professor_cod(self, professor_cod=-1):
+        self.__professor_cod = professor_cod
 
     def get_nome(self):
         return self.__nome
