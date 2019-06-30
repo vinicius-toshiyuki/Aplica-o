@@ -8,6 +8,8 @@ class RepositorioProfessor(ProfessorBD):
     
     def __init__(self):
         super(RepositorioProfessor, self).__init__()
+        self.__bd = ProfessorBD()
+        self.__bd.connect(database='corretor')
 
     def insertProfessor(self, Professor=None):
         try:

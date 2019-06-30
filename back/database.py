@@ -124,7 +124,7 @@ class Corretor(BD):
 			valores = ', '.join(['%s'] * len(kwargs))
 
 			query = 'insert into PROFESSOR ({}) values ({});'.format(colunas, valores)
-			self.connect(database='corretor')
+			# self.connect(database='corretor')
 			self.execute(query, list(kwargs.values()))
 		except Exception as e:
 			print(e)
