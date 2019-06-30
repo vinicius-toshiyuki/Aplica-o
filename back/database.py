@@ -116,7 +116,7 @@ class Corretor(BD):
 
 	def get_professor(self, cod):
 		try:
-			query = "SELECT * FROM PROFESSOR WHERE cod = %s;"
+			query = "SELECT * FROM PROFESSOR WHERE prof_cod = %s;"
 			self.connect(database='corretor')
 			self.execute(query, (cod,))
 			prof_dados = self.fetchall()[0]
@@ -141,7 +141,7 @@ class Corretor(BD):
 			colunas = ', '.join(colunas)
 			valores = ', '.join(['%s'] * len(kwargs))
 
-			query = 'insert into PROFESSOR ({}) values ({}) returning Cod;'.format(colunas, valores)
+			query = 'insert into PROFESSOR ({}) values ({}) returning prof_cod;'.format(colunas, valores)
 			self.connect(database='corretor')
 			self.execute(query, list(kwargs.values()))
 			cod = self.fetchone()[0]
@@ -159,7 +159,7 @@ class Corretor(BD):
 		foto_arq = f.read()
 
 		try:
-			query = 'UPDATE PROFESSOR SET Nome=%s,Email=%s,Senha=%s,Foto=%s,Data_Nasc=%s WHERE Cod=%s;'
+			query = 'UPDATE PROFESSOR SET Nome=%s,Email=%s,Senha=%s,Foto=%s,Data_Nasc=%s WHERE prof_cod=%s;'
 			self.connect(database='corretor')
 			self.execute(query, (nome, email, senha, foto_arq, data_de_nascimento, cod))
 		except Exception as e:
@@ -172,7 +172,7 @@ class Corretor(BD):
 
 	def delete_professor(self, Cod):
 		try:
-			query = "DELETE FROM PROFESSOR WHERE cod = %s"
+			query = "DELETE FROM PROFESSOR WHERE prof_cod = %s"
 			self.connect(database='corretor')
 			self.execute(query, (Cod,))
 		except Exception as e:
@@ -184,7 +184,7 @@ class Corretor(BD):
 
 	def get_professor_cod(self, email):
 		try:
-			query = "SELECT cod FROM PROFESSOR WHERE email = %s"
+			query = "SELECT prof_cod FROM PROFESSOR WHERE email = %s"
 			self.connect(database='corretor')
 			self.execute(query, (email,))
 			cod = self.fetchone()[0]
