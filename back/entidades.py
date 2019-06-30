@@ -127,18 +127,18 @@ class Aluno:
         self.__turma_semestre = semestre
 
 class Disciplina:
-    __codigo = -1
+    __disciplina_cod = -1
     __nome = ""
 
-    def __init__(self, codigo=-1, nome=""):
-        self.set_codigo(codigo)
+    def __init__(self, disciplina_cod=-1, nome=""):
+        self.set_disciplina_cod(disciplina_cod)
         self.set_nome(nome)
 
-    def get_codigo(self):
-        return self.__codigo
+    def get_disciplina_cod(self):
+        return self.__disciplina_cod
 
-    def set_codigo(self, codigo=-1):
-        self.__codigo = codigo
+    def set_disciplina_cod(self, disciplina_cod=-1):
+        self.__disciplina_cod = disciplina_cod
 
     def get_nome(self):
         return self.__nome
@@ -341,6 +341,190 @@ class Problema:
 
     def set_lista_cod(self, lista_cod=-1):
         self.__lista_cod = lista_cod
+
+    def get_modulo_cod(self):
+        return self.__modulo_cod
+
+    def set_modulo_cod(self, modulo_cod=-1):
+        self.__modulo_cod = modulo_cod
+
+    def get_disciplina_cod(self):
+        return self.__disciplina_cod
+
+    def set_disciplina_cod(self, disciplina_cod=-1):
+        self.__disciplina_cod = disciplina_cod
+
+class Entrada:
+    __entrada = ""
+    __problema_cod = -1
+    __lista_cod = -1
+    __modulo_cod = -1
+    __disciplina_cod = -1
+
+    def __init__(self, entrada="",problema_cod="",lista_cod=-1,modulo_cod=-1,disciplina_cod=-1):
+        self.set_entrada(entrada)
+        self.set_problema_cod(problema_cod)
+        self.set_lista_cod(lista_cod)
+        self.set_modulo_cod(modulo_cod)
+        self.set_disciplina_cod(disciplina_cod)
+
+    def get_entrada(self):
+        return self.__entrada
+
+    def set_entrada(self, entrada=""):
+        self.__entrada = entrada
+
+    def get_problema_cod(self):
+        return self.__problema_cod
+
+    def set_problema_cod(self, problema_cod=-1):
+        self.__problema_cod = problema_cod
+
+    def get_lista_cod(self):
+        return self.__lista_cod
+
+    def set_lista_cod(self, lista_cod=-1):
+        self.__lista_cod = lista_cod
+
+    def get_modulo_cod(self):
+        return self.__modulo_cod
+
+    def set_modulo_cod(self, modulo_cod=-1):
+        self.__modulo_cod = modulo_cod
+
+    def get_disciplina_cod(self):
+        return self.__disciplina_cod
+
+    def set_disciplina_cod(self, disciplina_cod=-1):
+        self.__disciplina_cod = disciplina_cod
+
+class Saida:
+    __saida = ""
+    __problema_cod = -1
+    __lista_cod = -1
+    __modulo_cod = -1
+    __disciplina_cod = -1
+
+    def __init__(self, saida="",problema_cod="",lista_cod=-1,modulo_cod=-1,disciplina_cod=-1):
+        self.set_saida(saida)
+        self.set_problema_cod(problema_cod)
+        self.set_lista_cod(lista_cod)
+        self.set_modulo_cod(modulo_cod)
+        self.set_disciplina_cod(disciplina_cod)
+
+    def get_saida(self):
+        return self.__saida
+
+    def set_saida(self, saida=""):
+        self.__saida = saida
+
+    def get_problema_cod(self):
+        return self.__problema_cod
+
+    def set_problema_cod(self, problema_cod=-1):
+        self.__problema_cod = problema_cod
+
+    def get_lista_cod(self):
+        return self.__lista_cod
+
+    def set_lista_cod(self, lista_cod=-1):
+        self.__lista_cod = lista_cod
+
+    def get_modulo_cod(self):
+        return self.__modulo_cod
+
+    def set_modulo_cod(self, modulo_cod=-1):
+        self.__modulo_cod = modulo_cod
+
+    def get_disciplina_cod(self):
+        return self.__disciplina_cod
+
+    def set_disciplina_cod(self, disciplina_cod=-1):
+        self.__disciplina_cod = disciplina_cod
+
+class Lista:
+    __lista_cod = -1
+    __titulo = ""
+    __descricao = ""
+    __dataHrInicio = ""
+    __dataHrFim = ""
+    __visibilidade = ""
+    __prova = ""
+    __modulo_cod = -1
+    __disciplina_cod = -1
+
+    def __init__(self, lista_cod=-1,titulo="",descricao="",dataHrInicio="",dataHrFim="",visibilidade="",prova="",modulo_cod=-1,disciplina_cod=-1):
+        self.set_lista_cod(lista_cod)
+        self.set_titulo(titulo)
+        self.set_descricao(descricao)
+        self.set_dataHrInicio(dataHrInicio)
+        self.set_dataHrFim(dataHrFim)
+        self.set_visibilidade(visibilidade)
+        self.set_prova(prova)
+        self.set_modulo_cod(modulo_cod)
+        self.set_disciplina_cod(disciplina_cod)
+
+    def get_lista_cod(self):
+        return self.__lista_cod
+
+    def set_lista_cod(self, lista_cod=-1):
+        self.__lista_cod = lista_cod
+
+    def get_titulo(self):
+        return self.__titulo
+
+    def set_titulo(self, titulo=""):
+        self.__titulo = titulo
+
+    def get_descricao(self):
+        return self.__descricao
+
+    def set_descricao(self, descricao=""):
+        self.__descricao = descricao
+
+    def get_dataHrInicio(self):
+        return self.__dataHrInicio
+    
+    def set_dataHrInicio(self, dataHrInicio=""):
+        self.__dataHrInicio = dataHrInicio
+
+    def get_dataHrFim(self):
+        return self.__dataHrFim
+
+    def set_dataHrFim(self, dataHrFim=""):
+        self.__dataHrFim = dataHrFim
+
+    def get_visibilidade(self):
+        return self.__visibilidade
+
+    def set_visibilidade(self, visibilidade=""):
+        self.__visibilidade = visibilidade
+
+    def get_prova(self):
+        return self.__prova
+
+    def set_prova(self, prova=""):
+        self.__prova = prova
+
+    def get_modulo_cod(self):
+        return self.__modulo_cod
+
+    def set_modulo_cod(self, modulo_cod=-1):
+        self.__modulo_cod = modulo_cod
+
+    def get_disciplina_cod(self):
+        return self.__disciplina_cod
+
+    def set_disciplina_cod(self, disciplina_cod=-1):
+        self.__disciplina_cod = disciplina_cod
+
+class Modulo:
+    __modulo_cod = -1
+    __disciplina_cod = -1
+
+    def __init__(self, modulo_cod=-1, disciplina_cod=-1):
+        self.set_modulo_cod(modulo_cod)
+        self.set_disciplina_cod(disciplina_cod)
 
     def get_modulo_cod(self):
         return self.__modulo_cod
