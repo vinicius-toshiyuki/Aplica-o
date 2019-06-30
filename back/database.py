@@ -7,7 +7,7 @@ class BD:
 	def __init__(self):
 		pass
 
-	def connect(self, user='postgres', password='root', host='127.0.0.1', port='5432', database='corretor'):
+	def connect(self, user='postgres', password='root', host='127.0.0.1', port='5432', database='postgres'):
 		try:
 			self._connection = psycopg2.connect(user=user, password=password, host=host, port=port, database=database)
 			self._cursor = self._connection.cursor()
@@ -15,6 +15,9 @@ class BD:
 			print('Erro ao conectar no banco de dados', error)
 		finally:
 			return True if self._connection else False
+
+	def close(self):
+		self._cursor.close()
 
 	def insert(self, table, values, columns=''):
 		if self._connection:
@@ -48,6 +51,9 @@ class BD:
 			print('Erro no execute')
 
 class Corretor(BD):
+	def __init__(self):
+		super(Corretor, self).__init__()
+
 	__alias = {
 		'matricula'            : 'matricula',
 		'nome'                 : 'nome',
@@ -118,6 +124,7 @@ class Corretor(BD):
 			valores = ', '.join(['%s'] * len(kwargs))
 
 			query = 'insert into PROFESSOR ({}) values ({});'.format(colunas, valores)
+			self.connect(database='corretor')
 			self.execute(query, list(kwargs.values()))
 		except Exception as e:
 			print(e)
@@ -125,6 +132,7 @@ class Corretor(BD):
 		finally:
 			f.close()
 			self.commit()
+			self.close()
 
 	def insert_work(self, **kwargs):
 		f = open(kwargs['Description'], 'rb')
@@ -385,14 +393,11 @@ class Corretor(BD):
 
 
 
+class ProfessorBD(Corretor):
+	def __init__(self):
+		super(ProfessorBD, self).__init__()
 
-
-
-
-
-
-
-
-
-
-
+	def _insertProfessor(self, Professor=None):
+		self.insert_professor(nome=Professor.get_nome(), email=Professor.get_email(),
+                            	senha=Professor.get_senha(), foto=Professor.get_foto(),
+								data_de_nascimento=Professor.get_dataNascimento())
