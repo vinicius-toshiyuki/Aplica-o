@@ -290,7 +290,15 @@ class Problema:
     __disciplina_cod = -1
 
     def __init__(self, problema_cod=-1,titulo="",descricao="",dificuldade="",limiteMem="",limiteTemp="",lista_cod=-1,modulo_cod=-1,disciplina_cod=-1):
-        self.__problema_cod = problema_cod
+        self.set_problema_cod(problema_cod)
+        self.set_titulo(titulo)
+        self.set_descricao(descricao)
+        self.set_dificuldade(dificuldade)
+        self.set_limiteMem(limiteMem)
+        self.set_limiteTemp(limiteTemp)
+        self.set_lista_cod(lista_cod)
+        self.set_modulo_cod(modulo_cod)
+        self.set_disciplina_cod(disciplina_cod)
 
     def get_problema_cod(self):
         return self.__problema_cod
