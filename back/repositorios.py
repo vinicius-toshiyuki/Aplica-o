@@ -46,3 +46,35 @@ class RepositorioProfessor(ProfessorBD):
             print(e)
             raise ValueError("Não existe professor com esse email")
         return cod
+
+class RepositorioAluno(AlunoBD):
+    
+   def getAluno(self, matricula):
+        try:
+            aluno = self._getAluno(matricula)
+        except Exception as e:
+            print(e)
+            raise ValueError("Não existe aluno com essa matricula")
+        return aluno
+
+    def insertAluno(self, Aluno=None):
+        try:
+            cod = self._insertAluno(Aluno)
+        except Exception as e:
+            print(e)
+            raise ValueError("Inserção invalida do aluno")
+        return cod
+
+    def updateAluno(self, Aluno=None):
+        try:
+        	self._updateAluno(Aluno)
+        except Exception as e:
+            print(e)
+            raise ValueError("Modificação invalida do aluno")
+
+    def deleteAluno(self, matricula):
+        try:
+            self._deleteAluno(matricula)
+        except Exception as e:
+            print(e)
+            raise ValueError("Não existe aluno com essa matricula")
