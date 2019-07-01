@@ -12,16 +12,32 @@ class RegisterScreen(App):
 
 		Button(self.screenFrame, text='Back', pady=7, command=self._back).grid(row=0, column=0)
 
+		self.value = StringVar()
+		self.value.set('')
+		options = [self.value] + [(lambda c: chr(c[0]))(c) for c in self.db.get_classes(get='codigo')]
 		self.fields = {}
-		fieldsNames = ('Register nº', 'Password', 'Confirm password', 'Username', 'E-mail', 'Birthdate', 'Class')
+		fieldsNames = ('Register nº', 'Password', 'Confirm password', 'Username', 'E-mail', 'Birthdate', ('Class',OptionMenu,options))
 		for i,f in enumerate(fieldsNames):
-			self.fields[f] = (
-						Label(self.screenFrame, text=f, bd = 7),
-						Entry(self.screenFrame)
+			k = f[0]
+			if type(f) == str:
+				k = f
+				self.fields[f] = (
+							Label(self.screenFrame, text=f, bd = 7),
+							Entry(self.screenFrame)
+							)
+			elif type(f[2]) == dict:
+				self.fields[f[0]] = (
+						Label(self.screenFrame, text=f[0], bd=7),
+						f[1](self.screenFrame, **f[2])
 						)
-			self.fields[f][0].grid(row=i+1, column=0)
-			self.fields[f][1].grid(row=i+1, column=1)
-			self.fields[f][1].bind('<Return>', self.__register)
+			else :
+				self.fields[f[0]] = (
+						Label(self.screenFrame, text=f[0], bd=7),
+						f[1](self.screenFrame, *f[2])
+						)
+			self.fields[k][0].grid(row=i+1, column=0)
+			self.fields[k][1].grid(row=i+1, column=1)
+			self.fields[k][1].bind('<Return>', self.__register)
 			
 		self.fields['E-mail'][1].insert(0, self.email)
 		self.fields['Register nº'][1].focus_set()
@@ -59,9 +75,7 @@ class RegisterScreen(App):
 				)
 		self.profilePicPath = profilePicFile.name
 
-		profilePicFile = Image.open(self.profilePicPath)
-		profilePicFile = profilePicFile.resize((50,50), Image.NEAREST)
-		profilePicFile.save('./tmp/temp.png')
+		self.__resize_profile_pic(self.profilePicPath, './tmp/temp.png')
 
 		profilePicFile = PhotoImage(file='./tmp/temp.png')
 
@@ -71,6 +85,11 @@ class RegisterScreen(App):
 		self.profilePicImageLabel.grid(row=0, column=2)
 		self.profilePicSet = True
 
+	def __resize_profile_pic(self, path, saveto):
+		profilePicFile = Image.open(path)
+		profilePicFile = profilePicFile.resize((50,50), Image.NEAREST)
+		profilePicFile.save(saveto)
+
 	def __register(self):
 		registern = self.fields['Register nº'][1].get()
 		password = self.fields['Password'][1].get()
@@ -78,16 +97,17 @@ class RegisterScreen(App):
 		username = self.fields['Username'][1].get()
 		email = self.fields['E-mail'][1].get()
 		birthdate = self.fields['Birthdate'][1].get()
-		classe = self.fields['Class'][1].get()
+		classe = self.value.get()
+		picturepath = './tmp/temp.png'
+		if not self.profilePicSet:
+			self.__resize_profile_pic('./assets/default.png', picturepath)
 
 		if not len(registern) or not len(password) or not len(confirmation):
 			TkMessageBox.showinfo('Error', 'Invalid registern or password')
 		elif password != confirmation:
 			TkMessageBox.showinfo('Error', 'Incorrect password!!!')
-		elif not self.profilePicSet:
-			TkMessageBox.showinfo('Error', 'No picture')
 		elif not len(registern) or not len(birthdate) or not len(classe):
-			TkMessageBox.showinfo('Erro', 'Jouhou ga tarinai')
+			TkMessageBox.showinfo('Error', 'Jouhou ga tarinai')
 		else:
 			try:
 				self.db.insert_aluno(
@@ -95,7 +115,7 @@ class RegisterScreen(App):
 						nome=username,
 						email=email,
 						senha=password,
-						foto='./tmp/temp.png',
+						foto=picturepath,
 						data_de_nascimento=birthdate,
 						turma=ord(classe.upper())
 						)
@@ -103,5 +123,3 @@ class RegisterScreen(App):
 			except Exception as e:
 				TkMessageBox.showinfo('Error', 'Invalid data')
 				print(e)
-			finally:
-				pass

@@ -31,16 +31,7 @@ class ModuleScreen(ManagementScreen):
 
 	def __show_file(self, filebytes):
 		try:
-			path = './tmp/work'
-			file = open(path, 'wb')
-			file.write(filebytes)
-			file.close()
-			if platform.system() == 'Darwin': # MacOS
-				subprocess.call(('open', path))
-			elif platform.system() == 'Windows':
-				os.startfile(filepath)
-			else:
-				subprocess.call(('xdg-open', path))
+			self._open_file(filebytes=filebytes)
 		except Exception as e:
 			print(e)
 			TkMessageBox.showinfo('Error', 'Unable to open file')

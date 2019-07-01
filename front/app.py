@@ -3,6 +3,9 @@ from tkinter import messagebox as TkMessageBox
 import threading
 from threading import Thread
 from back.database import *
+import os
+import platform
+import subprocess
 
 class App:
 	window = Tk(className='Corretor')
@@ -58,6 +61,21 @@ class App:
 
 		self.window.grid_columnconfigure(0, minsize=250)
 		self.window.grid_rowconfigure(0,minsize=200)
+	def _open_file(self, path='./tmp/file', filebytes=None):
+		try:
+			if filebytes:
+				file = open(path, 'wb')
+				file.write(filebytes)
+				file.close()
+			if platform.system() == 'Darwin': # MacOS
+				subprocess.call(('open', path))
+			elif platform.system() == 'Windows':
+				os.startfile(path)
+			else:
+				subprocess.call(('xdg-open', path))
+		except Exception as e:
+			raise ValueError(e)
+
 	def _back(self):
 		self._stop(self._previous[-1])
 	def _start(self):

@@ -17,6 +17,7 @@ class ManagementScreen(App):
 		buttons = (
 			('Back', self._back),
 			('Create course', self.__create_course),
+			('Create class', self.__create_class),
 			('Add language', self.__add_language)
 			)
 		for b in buttons:
@@ -35,8 +36,10 @@ class ManagementScreen(App):
 		for f in fieldsNames:
 			if type(f) == str:
 				fields[f] = Entry(self.promptScreen)
-			else:
+			elif type(f[2]) == dict:
 				fields[f[0]] = f[1](self.promptScreen, **f[2])
+			else:
+				fields[f[0]] = f[1](self.promptScreen, *f[2])
 		return fields
 
 	def __create_course(self):
@@ -67,3 +70,38 @@ class ManagementScreen(App):
 			print(e)
 			TkMessageBox.showinfo('Error', 'Failed!')
 
+	def __create_class(self):
+		self.value = [StringVar(), StringVar()]
+		try:
+			try:
+				optionsPro = [(lambda p: '{} - {}'.format(*p))(p) for p in self.db.get_users(get=['codigo','nome'], table='PROFESSOR')]
+				self.value[0].set(optionsPro[0])
+				optionsPro = (self.value[0], *optionsPro)
+			except Exception as e:
+				TkMessageBox.showinfo('Error', 'No professors found; first insert a professor')
+				raise ValueError(e)
+
+			try:
+				optionsCou = [(lambda c: '{} - {}'.format(*c))(c) for c in self.db.get_courses(get=['codigo','nome'])]
+				self.value[1].set(optionsCou[0])
+				optionsCou = (self.value[1], *optionsCou)
+			except Exception as e:
+				TkMessageBox.showinfo('Error', 'No courses found; first create a course')
+				raise ValueError(e)
+			self._create(('Name',('Professor', OptionMenu, optionsPro), ('Course', OptionMenu, optionsCou)), self.__create_class_)
+		except Exception as e:
+			print(e)
+
+	def __create_class_(self):
+		try:
+			classname = self.fields['Name'].get()
+			if len(classname) != 1: raise ValueError('No class input')
+			classname = ord(classname.upper())
+			professor = self.value[0].get()
+			course = self.value[1].get()
+
+			self.db.insert_class(classname, professor, course)
+			self.promptScreen.destroy()
+		except Exception as e:
+			print(e)
+			TkMessageBox.showinfo('Error', 'Invalid class')

@@ -64,7 +64,6 @@ class HomeScreen(App):
 			buttonsNames = (
 					('Review'           , self.__review),
 					('Privileges'       , self.__privileges),
-					('Contest control'  , self.__contest_control),
 					('Class management' , self.__class_management)
 					)
 			for i,b in enumerate(buttonsNames):
@@ -77,7 +76,7 @@ class HomeScreen(App):
 	def __problems(self, e=None):
 		self._stop(['problems', self.email, self.privilege])
 	def __attempts(self, e=None):
-		self._stop(['attempts', self.email])
+		self._stop(['attempts', self.email, self.privilege])
 	def __users(self, e=None):
 		self._stop(['users'])
 	def __change_password(self, e=None):
@@ -102,10 +101,8 @@ class HomeScreen(App):
 		self.promptScreen.destroy()
 
 	def __review(self, e=None):
-		pass
+		self._stop(['review'])
 	def __privileges(self, e=None):
-		pass
-	def __contest_control(self, e=None):
 		pass
 	def __class_management(self, e=None):
 		self._stop(['management'])

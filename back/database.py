@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2 import Error
+from datetime import *
 
 class BD:
 	_connection = None
@@ -90,6 +91,8 @@ class Corretor(BD):
 		'aluno'                : 'aluno_matr',
 		'linguagem'            : 'ling_progr_cod',
 		'problema'             : 'problema_cod',
+		'professor'            : 'prof_cod',
+		'semestre'             : 'semestre',
 		'tudo'                 : '*'
 	}
 	def insert_aluno(self, **kwargs):
@@ -182,7 +185,9 @@ class Corretor(BD):
 			'LING_PROGR',
 			'LISTA',
 			'PROBLEMA',
-			'PROBLEMAS_COMPLETOS'
+			'PROBLEMAS_COMPLETOS',
+			'SUBMISSAO',
+			'TURMA'
 		}
 		if table != None:
 			tabelas = tabelas - (tabelas - table)
@@ -320,6 +325,16 @@ class Corretor(BD):
 	def get_language_options(self, get='tudo', full=True, **kwargs):
 		return self.__get(get=get, table={'LING_PROGR'}, full=full, **kwargs)
 
+	def get_attempts(self, get='tudo', full=True, **kwargs):
+		return self.__get(get=get, table={'SUBMISSAO'}, full=full, **kwargs)
+
+	def get_classes(self, get='tudo', full=True, **kwargs):
+		return self.__get(get=get, table={'TURMA'}, full=full, **kwargs)
+
+	def get_nota(self, email):
+		self.execute('select nota(%s);', (email,))
+		return self.fetchone()[0]
+
 	def insert_module(self, number, course_code):
 		try:
 			self.execute('INSERT INTO MODULO VALUES (%s, %s);', (number, course_code))
@@ -388,9 +403,19 @@ class Corretor(BD):
 			raise ValueError(e)
 		finally:
 			file.close()
-
-
-
+	
+	def insert_class(self, classname, professor, course):
+		semestre = datetime.now()
+		semestre = '{}{}'.format(semestre.year, 1 if semestre else 2)
+		try:
+			self.execute(
+					'insert into TURMA values (%s, {}, %s, %s);'.format(semestre),
+					(classname, professor.split(' - ')[0], course.split(' - ')[0])
+					)
+		except Exception as e:
+			raise ValueError(e)
+		finally:
+			self.commit()
 
 
 class ProfessorBD(Corretor):
@@ -399,5 +424,5 @@ class ProfessorBD(Corretor):
 
 	def _insertProfessor(self, Professor=None):
 		self.insert_professor(nome=Professor.get_nome(), email=Professor.get_email(),
-                            	senha=Professor.get_senha(), foto=Professor.get_foto(),
+								senha=Professor.get_senha(), foto=Professor.get_foto(),
 								data_de_nascimento=Professor.get_dataNascimento())
