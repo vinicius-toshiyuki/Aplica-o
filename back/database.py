@@ -477,3 +477,32 @@ class ProfessorBD(Corretor):
 	def _getProfessorCod(self, email):
 		cod = self.get_professor_cod(email)
 		return cod
+
+
+
+class AlunoBD(Corretor):
+	def __init__(self):
+		super(AlunoBD, self).__init__()
+
+	def _getAluno(self, cod):
+		Aluno = self.get_Aluno(cod)
+		return Aluno
+
+
+	def _insertAluno(self, Aluno=None):
+		cod = self.insert_Aluno(nome=Aluno.get_nome(), email=Aluno.get_email(),
+                            	senha=Aluno.get_senha(), foto=Aluno.get_foto(),
+								data_de_nascimento=Aluno.get_dataNascimento())
+		return cod
+
+	def _updateAluno(self, Aluno=None):
+		self.update_Aluno(cod=Aluno.get_Aluno_cod(), nome=Aluno.get_nome(), email=Aluno.get_email(),
+                            	senha=Aluno.get_senha(), foto=Aluno.get_foto(),
+								data_de_nascimento=Aluno.get_dataNascimento())
+
+	def _deleteAluno(self, cod):
+		self.delete_Aluno(cod)
+
+	def _getAlunoCod(self, email):
+		cod = self.get_Aluno_cod(email)
+		return cod
