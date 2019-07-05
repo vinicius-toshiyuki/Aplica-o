@@ -95,8 +95,27 @@ class Corretor(BD):
 		'problema'             : 'problema_cod',
 		'professor'            : 'prof_cod',
 		'semestre'             : 'semestre',
+		'turma_semestre'	   : 'turma_semestre',
 		'tudo'                 : '*'
 	}
+
+	def get_aluno(self, matricula):
+		try:
+			query = "SELECT * FROM ALUNO WHERE matricula = %s;"
+			self.connect(database='corretor')
+			self.execute(query, (matricula,))
+			aluno_dados = self.fetchall()[0]
+			aluno = Aluno(aluno_dados[0],aluno_dados[1],aluno_dados[2],aluno_dados[3],
+						  aluno_dados[4],aluno_dados[5],aluno_dados[6],aluno_dados[7],
+						  aluno_dados[8])
+		except Exception as e:
+			print(e)
+			raise ValueError('Invalid data in get_aluno')
+		finally:
+			self.commit()
+			self.close()
+			return aluno
+
 	def insert_aluno(self, **kwargs):
 		f = open(kwargs['foto'], 'rb')
 		foto = f.read()
@@ -109,6 +128,7 @@ class Corretor(BD):
 			valores = ', '.join(['%s'] * len(kwargs))
 
 			query = 'insert into ALUNO ({}) values ({});'.format(colunas, valores)
+			self.connect(database='corretor')
 			self.execute(query, list(kwargs.values()))
 		except Exception as e:
 			print(e)
@@ -116,15 +136,44 @@ class Corretor(BD):
 		finally:
 			f.close()
 			self.commit()
+			self.close()
+
+	def update_aluno(self, matricula, nome, email, senha, foto, data_de_nascimento, turma_cod, turma_semestre, disciplina):
+		f = open(foto, 'rb')
+		foto_arq = f.read()
+
+		try:
+			query = 'UPDATE Aluno SET Nome=%s,Email=%s,Senha=%s,Foto=%s,Data_Nasc=%s,Turma_Cod=%s,Turma_Semestre=%s,Disc_Cod=%s WHERE matricula=%s;'
+			self.connect(database='corretor')
+			self.execute(query, (nome, email, senha, foto_arq, data_de_nascimento, turma_cod, turma_semestre, disciplina, matricula))
+		except Exception as e:
+			print(e)
+			raise ValueError('Invalid data in update_professor')
+		finally:
+			f.close()
+			self.commit()
+			self.close()
+
+	def delete_aluno(self, matricula):
+		try:
+			query = "DELETE FROM ALUNO WHERE matricula = %s"
+			self.connect(database='corretor')
+			self.execute(query, (matricula,))
+		except Exception as e:
+			print(e)
+			raise ValueError('Invalid data in delete_professor')
+		finally:
+			self.commit()
+			self.close()
 
 	def get_professor(self, cod):
 		try:
-			query = "SELECT * FROM PROFESSOR WHERE prof_cod = %s;"
+			query = "SELECT * FROM PROFESSOR WHERE cod = %s;"
 			self.connect(database='corretor')
 			self.execute(query, (cod,))
-			prof_dados = self.fetchall()[0]
-			professor = Professor(prof_dados[0],prof_dados[1],prof_dados[2],prof_dados[3],
-								  prof_dados[4],prof_dados[5],prof_dados[6])
+			aluno_dados = self.fetchall()[0]
+			professor = Professor(aluno_dados[0],aluno_dados[1],aluno_dados[2],aluno_dados[3],
+								  aluno_dados[4],aluno_dados[5],aluno_dados[6])
 		except Exception as e:
 			print(e)
 			raise ValueError('Invalid data in get_professor')
@@ -144,7 +193,7 @@ class Corretor(BD):
 			colunas = ', '.join(colunas)
 			valores = ', '.join(['%s'] * len(kwargs))
 
-			query = 'insert into PROFESSOR ({}) values ({}) returning prof_cod;'.format(colunas, valores)
+			query = 'insert into PROFESSOR ({}) values ({}) returning cod;'.format(colunas, valores)
 			self.connect(database='corretor')
 			self.execute(query, list(kwargs.values()))
 			cod = self.fetchone()[0]
@@ -162,7 +211,7 @@ class Corretor(BD):
 		foto_arq = f.read()
 
 		try:
-			query = 'UPDATE PROFESSOR SET Nome=%s,Email=%s,Senha=%s,Foto=%s,Data_Nasc=%s WHERE prof_cod=%s;'
+			query = 'UPDATE PROFESSOR SET Nome=%s,Email=%s,Senha=%s,Foto=%s,Data_Nasc=%s WHERE cod=%s;'
 			self.connect(database='corretor')
 			self.execute(query, (nome, email, senha, foto_arq, data_de_nascimento, cod))
 		except Exception as e:
@@ -175,7 +224,7 @@ class Corretor(BD):
 
 	def delete_professor(self, Cod):
 		try:
-			query = "DELETE FROM PROFESSOR WHERE prof_cod = %s"
+			query = "DELETE FROM PROFESSOR WHERE cod = %s"
 			self.connect(database='corretor')
 			self.execute(query, (Cod,))
 		except Exception as e:
@@ -187,7 +236,7 @@ class Corretor(BD):
 
 	def get_professor_cod(self, email):
 		try:
-			query = "SELECT prof_cod FROM PROFESSOR WHERE email = %s"
+			query = "SELECT cod FROM PROFESSOR WHERE email = %s"
 			self.connect(database='corretor')
 			self.execute(query, (email,))
 			cod = self.fetchone()[0]
@@ -513,24 +562,27 @@ class AlunoBD(Corretor):
 		super(AlunoBD, self).__init__()
 
 	def _getAluno(self, cod):
-		Aluno = self.get_Aluno(cod)
+		Aluno = self.get_aluno(cod)
 		return Aluno
 
 
 	def _insertAluno(self, Aluno=None):
-		cod = self.insert_Aluno(nome=Aluno.get_nome(), email=Aluno.get_email(),
+		self.insert_aluno(matricula=Aluno.get_matricula(),nome=Aluno.get_nome(), email=Aluno.get_email(),
                             	senha=Aluno.get_senha(), foto=Aluno.get_foto(),
-								data_de_nascimento=Aluno.get_dataNascimento())
-		return cod
+								data_de_nascimento=Aluno.get_dataNascimento(), 
+								turma=Aluno.get_turma_cod(), turma_semestre=Aluno.get_turma_semestre(),
+								disciplina=Aluno.get_disciplina_cod())
 
 	def _updateAluno(self, Aluno=None):
-		self.update_Aluno(cod=Aluno.get_Aluno_cod(), nome=Aluno.get_nome(), email=Aluno.get_email(),
+		self.update_aluno(matricula=Aluno.get_matricula(), nome=Aluno.get_nome(), email=Aluno.get_email(),
                             	senha=Aluno.get_senha(), foto=Aluno.get_foto(),
-								data_de_nascimento=Aluno.get_dataNascimento())
+								data_de_nascimento=Aluno.get_dataNascimento(),
+								turma_cod=Aluno.get_turma_cod(), turma_semestre=Aluno.get_turma_semestre(),
+								disciplina=Aluno.get_disciplina_cod())
 
 	def _deleteAluno(self, cod):
-		self.delete_Aluno(cod)
+		self.delete_aluno(cod)
 
 	def _getAlunoCod(self, email):
-		cod = self.get_Aluno_cod(email)
+		cod = self.get_aluno_cod(email)
 		return cod

@@ -1,5 +1,6 @@
 import back.repositorios
 from back.repositorios import RepositorioProfessor
+from back.repositorios import RepositorioAluno
 
 class ControllerProfessor:
     def __init__(self):
@@ -22,3 +23,20 @@ class ControllerProfessor:
 
     def recuperaProfessorCod(self, email):
         self.repositorio.getProfessorCod(email)
+
+class ControllerAluno:
+    def __init__(self):
+        self.repositorio = RepositorioAluno()
+
+    def recuperaAluno(self, matricula):
+        aluno = self.repositorio.getAluno(matricula)
+        return aluno
+
+    def criaAluno(self, Aluno=none):
+        self.repositorio.insertAluno(Aluno)
+
+    def modificaAluno(self, Aluno=None):
+        self.repositorio.updateAluno(Aluno)
+
+    def deletaAluno(self, matricula):
+        self.repositorio.deleteAluno(matricula)

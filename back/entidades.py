@@ -68,8 +68,9 @@ class Aluno:
     __dataCadastro = ""
     __turma_cod = -1
     __turma_semestre = ""
+    __disciplina_cod = -1
 
-    def __init__(self, matricula=-1, nome="", email="", senha="", foto="", dataNascimento="", dataCadastro="", turma_cod=-1, turma_semestre=""):
+    def __init__(self, matricula=-1, nome="", email="", senha="", foto="", dataNascimento="", dataCadastro="", turma_cod=-1, turma_semestre="",disciplina_cod=-1):
         self.set_matricula(matricula)
         self.set_nome(nome)
         self.set_email(email)
@@ -79,6 +80,7 @@ class Aluno:
         self.set_dataCadastro(dataCadastro)
         self.set_turma_cod(turma_cod)
         self.set_turma_semestre(turma_semestre)
+        self.set_disciplina_cod(disciplina_cod)
 
     def get_matricula(self):
         return self.__matricula
@@ -133,6 +135,12 @@ class Aluno:
 
     def set_turma_semestre(self, semestre=""):
         self.__turma_semestre = semestre
+
+    def get_disciplina_cod(self):
+        return self.__disciplina_cod
+
+    def set_disciplina_cod(self, disciplina_cod=-1):
+        self.__disciplina_cod = disciplina_cod
 
 class Disciplina:
     __disciplina_cod = -1
