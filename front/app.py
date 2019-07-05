@@ -38,6 +38,7 @@ class App:
 	def __thread_start(self):
 		while self.on:
 			print(self.screen)
+			print(self.handler)
 			self.handler[self.screen[0]](*self.screen[1:], title=self.title, icon=self.icon)._start()
 			self.end.acquire()
 			self.end.wait()
