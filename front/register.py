@@ -14,7 +14,10 @@ class RegisterScreen(App):
 
 		self.value = StringVar()
 		self.value.set('')
-		options = [self.value] + [(lambda c: chr(c[0]))(c) for c in self.db.get_classes(get='codigo')]
+		classes = [(lambda c: chr(c[0]))(c) for c in self.db.get_classes(get='codigo')]
+		if not len(classes):
+			classes = ['']
+		options = [self.value] + classes
 		self.fields = {}
 		fieldsNames = ('Register nº', 'Password', 'Confirm password', 'Username', 'E-mail', 'Birthdate', ('Class',OptionMenu,options))
 		for i,f in enumerate(fieldsNames):
@@ -101,7 +104,6 @@ class RegisterScreen(App):
 		picturepath = './tmp/temp.png'
 		if not self.profilePicSet:
 			self.__resize_profile_pic('./assets/default.png', picturepath)
-
 		if not len(registern) or not len(password) or not len(confirmation):
 			TkMessageBox.showinfo('Error', 'Invalid registern or password')
 		elif password != confirmation:
