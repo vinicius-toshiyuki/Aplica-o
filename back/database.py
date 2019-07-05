@@ -171,9 +171,9 @@ class Corretor(BD):
 			query = "SELECT * FROM PROFESSOR WHERE cod = %s;"
 			self.connect(database='corretor')
 			self.execute(query, (cod,))
-			aluno_dados = self.fetchall()[0]
-			professor = Professor(aluno_dados[0],aluno_dados[1],aluno_dados[2],aluno_dados[3],
-								  aluno_dados[4],aluno_dados[5],aluno_dados[6])
+			prof_dados = self.fetchall()[0]
+			professor = Professor(prof_dados[0],prof_dados[1],prof_dados[2],prof_dados[3],
+								  prof_dados[4],prof_dados[5],prof_dados[6])
 		except Exception as e:
 			print(e)
 			raise ValueError('Invalid data in get_professor')
@@ -413,12 +413,16 @@ class Corretor(BD):
 
 	def insert_disciplina(self, name):
 		try:
-			self.execute('insert into DISCIPLINA (nome) values (%s);', (name,))
+			self.connect(database='corretor')
+			self.execute('insert into DISCIPLINA (nome) values (%s) RETURNING Cod;', (name,))
+			cod = self.fetchone()[0]
 		except Exception as e:
 			print(e)
 			raise ValueError('Error in insert_disciplina')
 		finally:
 			self.commit()
+			self.close()
+			return cod
 
 	def insert_language(self, name, compilation):
 		try:
@@ -528,6 +532,45 @@ class Corretor(BD):
 		finally:
 			self.commit()
 
+	def get_disciplina(self, cod):
+		try:
+			query = "SELECT * FROM DISCIPLINA WHERE cod = %s;"
+			self.connect(database='corretor')
+			self.execute(query, (cod,))
+			disciplina_dados = self.fetchall()[0]
+			disciplina = Disciplina(disciplina_dados[0],disciplina_dados[1])
+		except Exception as e:
+			print(e)
+			raise ValueError('Invalid data in get_disciplina')
+		finally:
+			self.commit()
+			self.close()
+			return disciplina
+
+	def update_disciplina(self, cod, nome):
+		try:
+			query = 'UPDATE DISCIPLINA SET Nome=%s WHERE cod=%s;'
+			self.connect(database='corretor')
+			self.execute(query, (nome, cod))
+		except Exception as e:
+			print(e)
+			raise ValueError('Invalid data in update_disciplina')
+		finally:
+			self.commit()
+			self.close()
+
+	def delete_disciplina(self, cod):
+		try:
+			query = 'DELETE FROM DISCIPLINA WHERE cod=%s;'
+			self.connect(database='corretor')
+			self.execute(query, (cod,))
+		except Exception as e:
+			print(e)
+			raise ValueError('Invalid data in delete_disciplina')
+		finally:
+			self.commit()
+			self.close()
+
 class ProfessorBD(Corretor):
 	def __init__(self):
 		super(ProfessorBD, self).__init__()
@@ -586,3 +629,21 @@ class AlunoBD(Corretor):
 	def _getAlunoCod(self, email):
 		cod = self.get_aluno_cod(email)
 		return cod
+
+class DisciplinaBD(Corretor):
+	def __init__(self):
+		return super(DisciplinaBD, self).__init__()
+
+	def _getDisciplina(self, cod):
+		disciplina = self.get_disciplina(cod)
+		return disciplina
+
+	def _insertDisciplina(self, Disciplina=None):
+		cod = self.insert_disciplina(Disciplina.get_nome())
+		return cod
+
+	def _updateDisciplina(self, Disciplina=None):
+		self.update_disciplina(Disciplina.get_disciplina_cod(), Disciplina.get_nome())
+
+	def _deleteDisciplina(self, cod):
+		self.delete_disciplina(cod)

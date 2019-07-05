@@ -4,6 +4,7 @@ import psycopg2
 from psycopg2 import Error
 from back.database import ProfessorBD
 from back.database import AlunoBD
+from back.database import DisciplinaBD
 
 class RepositorioProfessor(ProfessorBD):
     
@@ -80,4 +81,20 @@ class RepositorioAluno(AlunoBD):
             print(e)
             raise ValueError("Não existe aluno com essa matricula")
 
-# Fazer o rep da disciplina
+class RepositorioDisciplina(DisciplinaBD):
+    def __init__(self):
+        return super(RepositorioDisciplina, self).__init__()
+
+    def getDisciplina(self, cod):
+        disciplina = self._getDisciplina(cod)
+        return disciplina
+
+    def insertDisciplina(self, Disciplina=None):
+        cod = self._insertDisciplina(Disciplina)
+        return cod
+
+    def updateDisciplina(self, Disciplina=None):
+        self._updateDisciplina(Disciplina)
+
+    def deleteDisciplina(self, cod):
+        self._deleteDisciplina(cod)
