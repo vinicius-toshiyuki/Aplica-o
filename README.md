@@ -24,11 +24,14 @@
 >
 >\c corretor
 >
->\i create.sql
+>\i schema/create_schema.sql
+>
+>\i schema /insert_default.sql
+>
+>\i f.sql
+>
+>\i select.sql
 >
 >\q
 >
->python3 front.py
-
-Ainda tem o detalhe que tem que criar um usuário inicial com privilégio de admin
-depois eu faço um script.
+>python3 main.py
