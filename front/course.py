@@ -64,4 +64,3 @@ class CourseScreen(ManagementScreen):
 		except Exception as e:
 			print(e)
 			TkMessageBox.showinfo('Error', 'Select a language')
-

@@ -44,6 +44,12 @@ class BD:
 			self._connection.commit()
 		else:
 			print('Erro no commit')
+	
+	def rollback(self):
+		if self._connection:
+			self._connection.rollback()
+		else:
+			print('Erro no rollback')
 
 	def execute(self, *args):
 		if self._connection:
@@ -379,10 +385,19 @@ class Corretor(BD):
 	def delete_problem(self, course_code, module_number, work_code, problem_code):
 		try:
 			self.execute(
+					'DELETE FROM ENTRADA WHERE PROBLEMA_COD = %s AND LISTA_COD = %s AND MODULO_COD = %s AND DISC_COD = %s;',
+					(problem_code, work_code, module_number, course_code)
+					)
+			self.execute(
+					'DELETE FROM SAIDA WHERE PROBLEMA_COD = %s AND LISTA_COD = %s AND MODULO_COD = %s AND DISC_COD = %s;',
+					(problem_code, work_code, module_number, course_code)
+					)
+			self.execute(
 					'DELETE FROM PROBLEMA WHERE DISC_COD = %s AND MODULO_COD = %s AND LISTA_COD = %s AND COD = %s;',
 					(course_code, module_number, work_code, problem_code)
 					)
 		except Exception as e:
+			self.rollback()
 			print(e)
 			raise ValueError('Can not delete a problem with a submission')
 		finally:

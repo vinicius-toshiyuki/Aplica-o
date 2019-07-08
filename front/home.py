@@ -51,6 +51,7 @@ class HomeScreen(App):
 				('Problems'        , self.__problems),
 				('Attempts'        , self.__attempts),
 				('Users'           , self.__users),
+				('Review'           , self.__review),
 				('Change password' , self.__change_password)
 				)
 		for i,b in enumerate(buttonsNames):
@@ -62,7 +63,6 @@ class HomeScreen(App):
 			# Botões do admin
 			self.buttonsAdmin = {}
 			buttonsNames = (
-					('Review'           , self.__review),
 					('Privileges'       , self.__privileges),
 					('Class management' , self.__class_management)
 					)

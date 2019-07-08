@@ -1,35 +1,35 @@
-select
-	a.matricula,
-	vereditos,
-	errados
-from
-	(select
-	 	matricula,
-		count(veredito) vereditos
-	from
-		aluno
-		join
-		submissao
-		on
-			matricula = aluno_matr
-	group by matricula) a
-	join
-	(select
-	 	matricula,
-		count(veredito) errados
-	from
-		aluno
-		join
-		submissao
-		on
-			matricula = aluno_matr and
-			veredito = 'wrong'
-	group by matricula) b
-	on
-		a.matricula = b.matricula
-;
-
-(select veredito, count(veredito) from submissao join lista on lista_cod = lista.cod and prova = 'S' group by veredito);
+-- select
+-- 	a.matricula,
+-- 	vereditos,
+-- 	errados
+-- from
+-- 	(select
+-- 	 	matricula,
+-- 		count(veredito) vereditos
+-- 	from
+-- 		aluno
+-- 		join
+-- 		submissao
+-- 		on
+-- 			matricula = aluno_matr
+-- 	group by matricula) a
+-- 	join
+-- 	(select
+-- 	 	matricula,
+-- 		count(veredito) errados
+-- 	from
+-- 		aluno
+-- 		join
+-- 		submissao
+-- 		on
+-- 			matricula = aluno_matr and
+-- 			veredito = 'wrong'
+-- 	group by matricula) b
+-- 	on
+-- 		a.matricula = b.matricula
+-- ;
+-- 
+-- (select veredito, count(veredito) from submissao join lista on lista_cod = lista.cod and prova = 'S' group by veredito);
 
 CREATE or REPLACE FUNCTION total_provas()
 	RETURNS integer as $total_provas$
@@ -154,7 +154,9 @@ CREATE or REPLACE FUNCTION total_provas(integer, integer, integer, varchar)
 		matr integer;
 	begin
 		select matricula into matr from aluno where email = emailaluno;
-				count(*) into total
+-- select count(distinct aluno_matr) into total
+		select count(*) from 
+		(select distinct aluno_matr, cod, p.lista_cod, p.modulo_cod, p.disc_cod into total
 			from
 				(
 				select
@@ -181,43 +183,33 @@ CREATE or REPLACE FUNCTION total_provas(integer, integer, integer, varchar)
 				on
 					p.lista_cod = ls.lista_cod and
 					p.modulo_cod = ls.modulo_cod and
-					p.disc_cod = ls.disc_cod and
+					p.disc_cod = ls.disc_cod
 			where
 				prova = 'S' and
 				aluno_matr = matr and
 				veredito = 'correct'
-			;
+			) sele;
 		return total;
 	end;
 	$total_provas$ LANGUAGE plpgsql;
 
-
-CREATE or REPLACE FUNCTION nota(varchar)
-	RETURNS real as $nota$
-	DECLARE
-		emailaluno alias for $1;
-		nota real;
-		tprovas integer;
-		acertos integer;
-	begin
-		perform * from (submissao join aluno on aluno_matr = matricula) sub_do_aluno where veredito = 'correct';
-
-
-		select total_provas() into tprovas;
-		select total_provas(emailaluno, 'correct') into acertos;
-		nota := cast(tprovas as real) - cast(acertos as real);
-		return nota;
-	end;
-	$nota$ LANGUAGE plpgsql;
-
-select total_provas() total_provas;
-select total_provas('wrong') wrong;
-select total_provas('correct') correct;
-select total_provas('vtmsugimoto@gmail.com'), 'vtmsugimoto@gmail.com' email;
-select total_provas('vtmsugimoto@gmail.com', 'wrong') wrong, 'vtmsugimoto@gmail.com' email;
-select total_provas('vtmsugimoto@gmail.com', 'correct') correct, 'vtmsugimoto@gmail.com' email;
-
-select nota('vtmsugimoto@gmail.com');
+-- CREATE or REPLACE FUNCTION nota(varchar)
+-- 	RETURNS real as $nota$
+-- 	DECLARE
+-- 		emailaluno alias for $1;
+-- 		nota real;
+-- 		tprovas integer;
+-- 		acertos integer;
+-- 	begin
+-- 		perform * from (submissao join aluno on aluno_matr = matricula) sub_do_aluno where veredito = 'correct';
+-- 
+-- 
+-- 		select total_provas() into tprovas;
+-- 		select total_provas(emailaluno, 'correct') into acertos;
+-- 		nota := cast(tprovas as real) - cast(acertos as real);
+-- 		return nota;
+-- 	end;
+-- 	$nota$ LANGUAGE plpgsql;
 
 CREATE or REPLACE FUNCTION nota(varchar)
 	RETURNS real as $nota$

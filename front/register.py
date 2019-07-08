@@ -15,8 +15,17 @@ class RegisterScreen(App):
 		self.value = StringVar()
 		self.value.set('')
 		options = [self.value] + [(lambda c: chr(c[0]))(c) for c in self.db.get_classes(get='codigo')]
+		if len(options) == 1:
+			options += ['']
+
+		self.course_value = StringVar()
+		self.course_value.set('')
+		course_options = [self.course_value] + [(lambda c: c[0])(c) for c in self.db.get_courses(get='codigo')]
+		if len(course_options) == 1:
+			course_options += ['']
+
 		self.fields = {}
-		fieldsNames = ('Register nº', 'Password', 'Confirm password', 'Username', 'E-mail', 'Birthdate', ('Class',OptionMenu,options))
+		fieldsNames = ('Register nº', 'Password', 'Confirm password', 'Username', 'E-mail', 'Birthdate', ('Class',OptionMenu,options), ('Course',OptionMenu,course_options))
 		for i,f in enumerate(fieldsNames):
 			k = f[0]
 			if type(f) == str:
@@ -98,6 +107,7 @@ class RegisterScreen(App):
 		email = self.fields['E-mail'][1].get()
 		birthdate = self.fields['Birthdate'][1].get()
 		classe = self.value.get()
+		course = self.course_value.get()
 		picturepath = './tmp/temp.png'
 		if not self.profilePicSet:
 			self.__resize_profile_pic('./assets/default.png', picturepath)
@@ -106,8 +116,8 @@ class RegisterScreen(App):
 			TkMessageBox.showinfo('Error', 'Invalid registern or password')
 		elif password != confirmation:
 			TkMessageBox.showinfo('Error', 'Incorrect password!!!')
-		elif not len(registern) or not len(birthdate) or not len(classe):
-			TkMessageBox.showinfo('Error', 'Jouhou ga tarinai')
+		elif not len(registern) or not len(birthdate) or not len(classe) or not len(course):
+			TkMessageBox.showinfo('Error', 'Not enough information')
 		else:
 			try:
 				self.db.insert_aluno(
@@ -117,7 +127,8 @@ class RegisterScreen(App):
 						senha=password,
 						foto=picturepath,
 						data_de_nascimento=birthdate,
-						turma=ord(classe.upper())
+						turma=ord(classe.upper()),
+						disciplina=course
 						)
 				self._stop()
 			except Exception as e:
